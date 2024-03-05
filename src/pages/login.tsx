@@ -1,15 +1,17 @@
 import {
-    Button,
-    Container,
-    Grid,
-    Paper,
-    TextField,
-    Typography,
-    styled,
+  Button,
+  CircularProgress,
+  Container,
+  Grid,
+  Paper,
+  TextField,
+  Typography,
+  styled,
 } from "@mui/material";
 import { orange } from "@mui/material/colors";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import background from "../assets/backgroundREG2.png";
 import logo from "../assets/logo.png";
 import { login } from "../service/service";
@@ -45,12 +47,11 @@ const customTheme = createTheme({
 function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-
+  const history = useNavigate();
+  const [loading, setLoading] = useState(false);
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value);
   };
-  
 
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
@@ -58,18 +59,22 @@ function LoginPage() {
 
   const handleSubmit = async (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
-
+    setLoading(true);
     const loginResult = await login({
       username: username,
       password: password,
     });
     if (loginResult.status) {
+      setLoading(false);
       //   console.log(loginResult.message);
       console.log("Token:", loginResult.token);
       const Token = loginResult.token;
       localStorage.setItem("Token", JSON.stringify(Token));
       //   console.log(JSON.parse(localStorage.getItem("Token")!));
       //   localStorage.setItem("name", nameRef.current!.value);
+      history("/");
+      // Add loading functionality here
+      // TODO: Add loading functionality
     } else {
       console.error("Error:", loginResult.message);
     }
@@ -130,7 +135,7 @@ function LoginPage() {
                   variant="contained"
                   color="primary"
                 >
-                  Login
+                  {loading ? <CircularProgress size={24} /> : "Login"}
                 </Button>
               </form>
             </PaperI>
