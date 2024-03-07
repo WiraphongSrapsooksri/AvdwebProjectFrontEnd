@@ -1,0 +1,97 @@
+@import url("https://fonts.googleapis.com/css2?family=Kanit:wght@900&display=swap");
+.rank-circle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  width: 40px;
+  height: 35px;
+  background-color: #ddd;
+  color: #333;
+  font-size: 20px;
+  font-family: "kanit";
+}
+.username {
+  display: flex;
+  align-items: center;
+
+  height: 35px;
+  margin-left: 10px;
+  /* background-color: #ddd; */
+  font-family: "kanit";
+  color: #333;
+  font-size: 20px;
+  position: relative;
+}
+
+.point {
+  display: flex;
+  align-items: end;
+  justify-content: end;
+  height: 35px;
+  margin-right: 10px;
+  /* background-color: #ddd; */
+  font-family: "kanit";
+  color: #232323;
+  font-size: 20px;
+  position: relative;
+}
+
+.textRanking {
+  font-family: "Kanit", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  color: #ffffff;
+  font-size: 40px;
+  text-align: center;
+  margin: 0px;
+  margin-top: 10px;
+  -webkit-text-stroke: 2px #000000;
+  animation: colorchange 10s infinite; /* Add this line */
+}
+
+@keyframes colorchange {
+  0% {
+    color: #ff0000;
+  } /* red */
+  25% {
+    color: #ff7f00;
+  } /* orange */
+  50% {
+    color: #ffff00;
+  } /* yellow */
+  75% {
+    color: #00ff00;
+  } /* green */
+  100% {
+    color: #a389ff;
+  } /* blue */
+}
+/* @keyframes colorchange {
+  0% {
+    color: #190482;
+  }
+  25% {
+    color:#7752FE;
+  }
+  50% {
+    color: #8E8FFA;
+  }
+  75% {
+    color: #CDF5FD;
+  }
+  100% {
+    color: #C2D9FF;
+  }
+} */
+
+.item:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s ease-in-out;
+}
+
+.textProfile {
+  font-family: "Kanit", sans-serif;
+  font-size: 30px;
+  margin: 0px;
+}
