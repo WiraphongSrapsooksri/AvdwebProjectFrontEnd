@@ -57,29 +57,29 @@ function LoginPage() {
     setPassword(event.target.value);
   };
 
-  const handleSubmit = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoading(true);
+
+    setLoading(true); // Set loading to true when login starts
+
     const loginResult = await login({
       username: username,
       password: password,
     });
+
+    setLoading(false); // Set loading to false when login ends
+
     if (loginResult.status) {
-      setLoading(false);
-      //   console.log(loginResult.message);
-      console.log("Token:", loginResult.token);
+      // console.log("Token:", loginResult.token.token);
+      // console.log("user:", loginResult.token.user);
       const Token = loginResult.token;
-      localStorage.setItem("Token", JSON.stringify(Token));
-      //   console.log(JSON.parse(localStorage.getItem("Token")!));
-      //   localStorage.setItem("name", nameRef.current!.value);
+      localStorage.setItem("Token_WEBAVD", JSON.stringify(Token));
+      localStorage.setItem("user_WEBAVD", JSON.stringify(loginResult.token.user));
       history("/");
-      // Add loading functionality here
-      // TODO: Add loading functionality
     } else {
       console.error("Error:", loginResult.message);
     }
 
-    // Clear form data after submission
     setUsername("");
     setPassword("");
   };
@@ -109,7 +109,11 @@ function LoginPage() {
               <Typography sx={{ paddingTop: 5 }} variant="h5" gutterBottom>
                 Login
               </Typography>
-              <form onSubmit={handleSubmit}>
+              <form
+                onSubmit={(event: React.FormEvent<HTMLFormElement>) =>
+                  handleSubmit(event)
+                }
+              >
                 <TextField
                   label="Username"
                   variant="outlined"

@@ -1,15 +1,15 @@
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {
-    Avatar,
-    Backdrop,
-    Box,
-    Button,
-    Container,
-    Grid,
-    Paper,
-    TextField,
-    Typography,
-    styled,
+  Avatar,
+  Backdrop,
+  Box,
+  Button,
+  Container,
+  Grid,
+  Paper,
+  TextField,
+  Typography,
+  styled,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import Dialog from "@mui/material/Dialog";

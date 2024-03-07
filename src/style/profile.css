@@ -1,0 +1,13 @@
+.textprofilesetA{
+    font-size: 20px;
+    font-weight: 300;
+    color: #000000;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-family: 'Kanit', sans-serif;
+}
+
+strong{
+    font-weight: 500;
+    margin-right: 5px;
+}
