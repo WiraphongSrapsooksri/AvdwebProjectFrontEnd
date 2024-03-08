@@ -175,10 +175,9 @@ function MainPage() {
                     sx={{
                       borderRadius: "30px",
                       padding: 1,
-                      transition: "transform 0.3s ease-in-out", // Add this line
+                      transition: "transform 0.3s ease-in-out",
                       "&:hover": {
-                        // Add this block
-                        transform: "scale(0.9)", // Change the scale to your preference
+                        transform: "scale(0.9)",
                       },
                     }}
                   >
@@ -293,21 +292,6 @@ function MainPage() {
               </p>
             </Item>
           </Link>
-          {/* <Item
-            sx={{
-              backgroundColor: "#F1F1F1",
-              borderRadius: "30px",
-              height: "80%",
-              padding: 1,
-              boxShadow: "0px 4px 4px rgba(0, 0, 0, 0)",
-              //   alignSelf: "flex-end", // อาจไม่จำเป็นหากใช้ justifyContent: 'space-between'
-            }}
-          >
-            <p>name: {userdata?.aka}</p>
-            <p>username {userdata?.username}</p>
-
-            <img src={userdata?.image_profile} alt="" height={"120vh"} />
-          </Item> */}
         </Item>
       </Box>
     );

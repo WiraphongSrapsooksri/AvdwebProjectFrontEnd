@@ -21,11 +21,9 @@ export default function ProfilePage() {
         const user: Usermodel = JSON.parse(userDataStr);
         setuserdata(user);
         if (user?.id) {
-          const images: ListImageByID[] = await getListimageById(user.id);
-          setlistImageofuser(images);
-          // Simulated chart data fetch, replace with your actual data fetch logic
-          // This is where you would call an API to get your chart data
-          // For demonstration, using static data provided
+          const image: ListImageByID[] = await getListimageById(user.id);
+          setlistImageofuser(image);
+
           const demoChartData: ChartModel[] = [
             {
               id: 25,
@@ -41,7 +39,6 @@ export default function ProfilePage() {
               votes_gained: 1,
               rank: null,
             },
-            // Add all your data points here
           ];
           //   const statsByIdImage = await getdaily_statsByIdImage(19);
           setChartData(demoChartData);
@@ -135,7 +132,6 @@ export default function ProfilePage() {
           <Box sx={{ marginTop: 4 }}>
             {/* Pass chartData to the LineChartComponent */}
             {/* <LineChartComponent key={chartData.length} data={chartData} /> */}
-
           </Box>
         </Box>
       </Box>
@@ -179,21 +175,20 @@ export default function ProfilePage() {
           >
             {listImageofuser.slice(0, 4)?.map((image) => (
               <Item
+                key={image.imgid}
                 sx={{
                   borderRadius: "30px",
                   padding: 0,
-                  transition: "transform 0.3s ease-in-out", // Add this line
+                  transition: "transform 0.3s ease-in-out",
                   "&:hover": {
-                    // Add this block
-                    transform: "scale(0.9)", // Change the scale to your preference
+                    transform: "scale(1.0)",
                   },
                 }}
               >
                 {" "}
                 <img
-                  key={image.imgid}
                   src={image.image_url}
-                  alt={image.imgid.toString()}
+                  alt={image.imgid?.toString() ?? "default-alt"}
                   style={{
                     width: "100%",
                     height: "100%",
@@ -239,10 +234,10 @@ export default function ProfilePage() {
             Profile
           </p>
           <Grid container spacing={2}>
-            <Grid xs={12} md={12}>
+            <Grid item xs={12} md={12}>
               {row1()}
             </Grid>
-            <Grid xs={12} md={12}>
+            <Grid item xs={12} md={12}>
               {row2()}
             </Grid>
           </Grid>
