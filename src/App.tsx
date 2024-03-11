@@ -5,6 +5,7 @@ import AdmainPage from "./pages/admin";
 import LoginPage from "./pages/login";
 import MainPage from "./pages/main";
 import ProfilePage from "./pages/profile";
+import VotePage from "./pages/vote";
 function App() {
   const routers = createBrowserRouter([
     { path: "/", element: <MainPage /> },
@@ -12,6 +13,7 @@ function App() {
     { path: "/admin", element: <AdmainPage /> },
     { path: "/login", element: <LoginPage /> },
     { path: "/profile", element: <ProfilePage /> },
+    { path: "/vote", element: <VotePage /> },
   ]);
   return (
     <>

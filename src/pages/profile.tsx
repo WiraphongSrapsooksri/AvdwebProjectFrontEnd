@@ -1,7 +1,21 @@
-import { Avatar, Container, Grid, ImageList, Paper } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
+import CloseIcon from "@mui/icons-material/Close";
+import {
+  Avatar,
+  Button,
+  CircularProgress,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  ImageList,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import background from "../assets/backgroundREG.png";
 import { ChartModel } from "../model/ChartModel";
 import { ListImageByID } from "../model/ListImageByID";
@@ -10,13 +24,31 @@ import {
   getListDaily_statsByIduser,
   getListimageById,
 } from "../service/GetService";
-import "../style/profile.css";
+import {
+  addimage,
+  convertImagetoURL,
+  deleteimageByuser,
+  updateImage,
+} from "../service/uploadImage";
 import MultiImageChart from "./MultiImageChart";
 
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import "../style/profile.css";
 export default function ProfilePage() {
   const [userdata, setuserdata] = useState<Usermodel>();
   const [listImageofuser, setlistImageofuser] = useState<ListImageByID[]>([]);
   const [chartData, setChartData] = useState<ChartModel[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFileInsert, setSelectedFileInsert] = useState<File | null>(
+    null
+  );
+  const [open, setOpen] = useState(false);
+  const [openInsert, setOpenInsert] = useState(false);
+  const [previewUrlInsert, setPreviewUrlInsert] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [id, setId] = useState(0);
+  const [user_id, setUser_id] = useState(0);
   // useEffect(() => {
   //   async function fetchUserDataAndImages() {
   //     const userDataStr = localStorage.getItem("user_WEBAVD");
@@ -90,14 +122,14 @@ export default function ProfilePage() {
     fetchUserDataAndImages();
   }, []);
 
-  const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: "center",
-    color: theme.palette.text.secondary,
-    flexGrow: 1,
-  }));
+  // const Item = styled(Paper)(({ theme }) => ({
+  //   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
+  //   ...theme.typography.body2,
+  //   padding: theme.spacing(1),
+  //   textAlign: "center",
+  //   color: theme.palette.text.secondary,
+  //   flexGrow: 1,
+  // }));
 
   const row1 = () => {
     return (
@@ -120,11 +152,12 @@ export default function ProfilePage() {
             justifyContent: "center",
             alignItems: "center",
             padding: 2,
+            margin: 0,
             backgroundColor: "rgba(255, 255, 255, 1)",
-            // margin: 2,
+            height: "30vh",
             borderRadius: "30px",
             minWidth: "20vw",
-            minHeight: "30vh",
+            minHeight: "25vh",
           }}
         >
           <Avatar
@@ -175,6 +208,7 @@ export default function ProfilePage() {
             margin: 2,
             borderRadius: "30px",
             minWidth: "20vw",
+
             // minHeight: "40vh",
           }}
         >
@@ -198,7 +232,7 @@ export default function ProfilePage() {
           padding: 1,
           backgroundColor: "rgba(255, 255, 255, 1)",
           // margin: 2,
-          marginLeft: 4,
+          // marginLeft: 4,
           borderRadius: "30px",
           minHeight: "35vh",
         }}
@@ -209,33 +243,33 @@ export default function ProfilePage() {
             sx={{
               height: "100%",
               margin: 0,
-              "&::-webkit-scrollbar": {
-                width: "0px",
-              },
-              "&::-webkit-scrollbar-track": {
-                background: "#FCFCFC",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                background: "#BBBBBB",
-              },
-              "&::-webkit-scrollbar-thumb:hover": {
-                background: "#BBBBBB",
-              },
+              padding: 0,
+              "&::-webkit-scrollbar": { width: "0px" },
+              "&::-webkit-scrollbar-track": { background: "#FCFCFC" },
+              "&::-webkit-scrollbar-thumb": { background: "#BBBBBB" },
+              "&::-webkit-scrollbar-thumb:hover": { background: "#BBBBBB" },
             }}
           >
-            {listImageofuser.slice(0, 5)?.map((image) => (
-              <Item
+            {listImageofuser?.map((image) => (
+              <Box
                 key={image.imgid}
                 sx={{
                   borderRadius: "30px",
                   padding: 0,
-                  transition: "transform 0.3s ease-in-out",
-                  "&:hover": {
-                    transform: "scale(1.0)",
+                  position: "relative",
+                  "&:hover .image-overlay": {
+                    // เพิ่ม class เพื่อการควบคุม hover
+                    opacity: 1,
+                    transition: "opacity 0.3s ease-in-out",
                   },
                 }}
+                onMouseEnter={() => {
+                  /* ที่นี่คุณสามารถเพิ่มโค้ดเพื่อการตอบสนองเมื่อเมาส์เข้ามา */
+                }}
+                onMouseLeave={() => {
+                  /* และที่นี่เมื่อเมาส์ออกไป */
+                }}
               >
-                {" "}
                 <img
                   src={image.image_url}
                   alt={image.imgid?.toString() ?? "default-alt"}
@@ -246,13 +280,414 @@ export default function ProfilePage() {
                     borderRadius: "30px",
                   }}
                 />
-              </Item>
+                {/* โอเวอร์เลย์ที่จะแสดงตัวเลือก */}
+                <Box
+                  className="image-overlay"
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    opacity: 0,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: "30px",
+                    "&:hover": {
+                      cursor: "pointer",
+                    },
+                  }}
+                >
+                  {/* ตัวเลือกต่าง ๆ */}
+                  <Box sx={{ textAlign: "center" }}>
+                    <button
+                      style={{
+                        margin: "10px",
+                        backgroundColor: "red",
+                        color: "white",
+                        borderRadius: "10px",
+                        width: "60px",
+                        height: "30px",
+                        fontSize: "15px",
+                        fontFamily: "Kanit",
+                      }}
+                      onClick={() => {
+                        deleteImage(image.imgid, image.userid);
+                      }}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      style={{
+                        margin: "10px",
+                        backgroundColor: "#FFBF00",
+                        color: "black",
+                        borderRadius: "10px",
+                        width: "60px",
+                        height: "30px",
+                        fontSize: "15px",
+                        fontFamily: "Kanit",
+                      }}
+                      onClick={() => handleClickOpen(image.imgid, image.userid)}
+                    >
+                      Edit
+                    </button>
+
+                    <Dialog
+                      open={open}
+                      onClose={handleClose}
+                      fullWidth
+                      maxWidth="sm"
+                    >
+                      <DialogTitle>
+                        Update Image
+                        {handleClose ? (
+                          <IconButton
+                            aria-label="close"
+                            onClick={handleClose}
+                            sx={{
+                              position: "absolute",
+                              right: 8,
+                              top: 8,
+                              color: (theme) => theme.palette.grey[500],
+                            }}
+                          >
+                            <CloseIcon />
+                          </IconButton>
+                        ) : null}
+                      </DialogTitle>
+                      <DialogContent dividers>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: 2,
+                            marginTop: 2,
+                          }}
+                        >
+                          <input
+                            accept="image/*"
+                            style={{ display: "none" }}
+                            id="raised-button-file"
+                            multiple
+                            type="file"
+                            onChange={handleFileChange}
+                          />
+                          <label htmlFor="raised-button-file">
+                            <Button
+                              variant="contained"
+                              component="span"
+                              disabled={loading}
+                            >
+                              Choose Image
+                            </Button>
+                          </label>
+                          {previewUrl && (
+                            <Box
+                              sx={{
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                marginTop: 2,
+                              }}
+                            >
+                              <img
+                                src={previewUrl}
+                                alt="Image preview"
+                                style={{
+                                  maxWidth: "100%",
+                                  maxHeight: "400px",
+                                  borderRadius: "4px",
+                                }}
+                              />
+                            </Box>
+                          )}
+                        </Box>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={handleClose} disabled={loading}>
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleUpload()}
+                          disabled={loading}
+                          startIcon={
+                            loading ? <CircularProgress size={24} /> : null
+                          }
+                        >
+                          {loading ? "Uploading..." : "Upload"}
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+                  </Box>
+                </Box>
+              </Box>
             ))}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
+
+                marginLeft: 1,
+                // backgroundColor:'red'
+              }}
+            >
+              {(!listImageofuser || listImageofuser.length < 5) && (
+                <AddCircleOutlineIcon
+                  style={{
+                    color: "#007bff", // กำหนดสีของไอคอน
+                    fontSize: "3rem", // กำหนดขนาดของไอคอน
+                    cursor: "pointer", // เปลี่ยนรูปแบบของเมาส์เมื่อชี้ที่ไอคอน
+                    transition: "all 0.3s ease", // เพิ่มเอฟเฟกต์การเปลี่ยนแปลงอย่างนุ่มนวล
+                    position: "relative",
+                  }}
+                  onClick={() => handleClickOpenInsert(userdata?.id ?? 0)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "scale(1.2)"; // ขยายขนาดไอคอนเมื่อเมาส์วางบน
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "scale(1)"; // คืนขนาดไอคอนเมื่อเมาส์ออก
+                  }}
+                />
+              )}
+              <Dialog
+                open={openInsert}
+                onClose={handleCloseInsert}
+                fullWidth
+                maxWidth="sm"
+              >
+                <DialogTitle>
+                  Add Image
+                  {handleCloseInsert ? (
+                    <IconButton
+                      aria-label="close"
+                      onClick={handleCloseInsert}
+                      sx={{
+                        position: "absolute",
+                        right: 8,
+                        top: 8,
+                        color: (theme) => theme.palette.grey[500],
+                      }}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  ) : null}
+                </DialogTitle>
+                <DialogContent dividers>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 2,
+                      marginTop: 2,
+                    }}
+                  >
+                    <input
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      id="raised-button-file"
+                      multiple
+                      type="file"
+                      onChange={handleFileChangeInsert}
+                    />
+                    <label htmlFor="raised-button-file">
+                      <Button
+                        variant="contained"
+                        component="span"
+                        disabled={loading}
+                      >
+                        Choose Image
+                      </Button>
+                    </label>
+                    {previewUrlInsert && (
+                      <Box
+                        sx={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "center",
+                          marginTop: 2,
+                        }}
+                      >
+                        <img
+                          src={previewUrlInsert}
+                          alt="Image preview"
+                          style={{
+                            maxWidth: "100%",
+                            maxHeight: "400px",
+                            borderRadius: "4px",
+                          }}
+                        />
+                      </Box>
+                    )}
+                  </Box>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleCloseInsert} disabled={loading}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => appimage()}
+                    disabled={loading}
+                    startIcon={loading ? <CircularProgress size={24} /> : null}
+                  >
+                    {loading ? "Uploading..." : "Upload"}
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </Box>
           </ImageList>
         </Box>
       </Box>
     );
   };
+
+  const appimage = async () => {
+    console.log(user_id);
+    if (selectedFileInsert) {
+      setLoading(true); // Set loading to true before the upload starts
+      console.log("add image ", selectedFileInsert);
+
+      try {
+        const response = await convertImagetoURL(selectedFileInsert);
+        console.log(response.url);
+
+        const app = await addimage(response.url, user_id);
+
+        if (app.status) {
+          console.log("S" + app.status);
+          window.location.reload();
+        }
+        console.log(response);
+      } catch (error) {
+        console.error("Upload failed:", error);
+        // You might want to handle the error here, perhaps setting an error state
+      }
+
+      setLoading(false); // Set loading to false after the upload completes
+      handleCloseInsert(); // Close the dialog after upload
+    }
+  };
+
+  const handleClickOpenInsert = (user_id: number) => {
+    console.log(user_id);
+    setOpenInsert(true);
+    setUser_id(user_id);
+  };
+
+  const handleCloseInsert = () => {
+    setOpenInsert(false);
+    setSelectedFileInsert(null);
+    setPreviewUrlInsert("");
+  };
+
+  const handleFileChangeInsert = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    setSelectedFileInsert(file);
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrlInsert(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleClickOpen = (id: number, user_id: number) => {
+    // Your existing logic to open the dialog
+    console.log(id);
+    console.log(user_id);
+    setId(id);
+    setUser_id(user_id);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    // Also reset selected file and preview URL
+    setSelectedFile(null);
+    setPreviewUrl("");
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    setSelectedFile(file);
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (selectedFile) {
+      setLoading(true); // Set loading to true before the upload starts
+      console.log("Uploading", selectedFile);
+
+      try {
+        const response = await convertImagetoURL(selectedFile);
+        console.log(response.url);
+        const jsons = {
+          image_url: response.url,
+          image_id: id,
+          user_id: user_id,
+        };
+        console.log(jsons);
+
+        const update = await updateImage(
+          jsons.image_url,
+          jsons.image_id,
+          jsons.user_id
+        );
+
+        if (update.status) {
+          console.log("S" + update.status);
+          window.location.reload();
+        }
+        console.log(response);
+      } catch (error) {
+        console.error("Upload failed:", error);
+        // You might want to handle the error here, perhaps setting an error state
+      }
+
+      setLoading(false); // Set loading to false after the upload completes
+      handleClose(); // Close the dialog after upload
+    }
+  };
+
+  const deleteImage = async (id: number, user_id: number) => {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this image?"
+    );
+    if (!isConfirmed) {
+      return; // Exit the function if the user cancels.
+    }
+    try {
+      const response = await deleteimageByuser(id, user_id);
+      if (response.status) {
+        console.log("S" + response.status);
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Error deleting image:", error);
+    }
+  };
+
   return (
     <Container
       sx={{
@@ -273,21 +708,44 @@ export default function ProfilePage() {
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            padding: 2,
+            padding: 1,
             // height: "100vw",
             backgroundColor: "rgba(255, 255, 255, 0.5)",
             marginTop: "10px",
             borderRadius: "30px",
           }}
         >
-          <p style={{ fontFamily: "Kanit", fontSize: "35px", margin: 0 }}>
-            Profile
-          </p>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={12}>
+          <Grid container spacing={2} sx={{ margin: 0 }}>
+            <Grid
+              item
+              xs={12}
+              md={12}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                position: "relative", // ให้สามารถใช้ positioning ได้
+              }}
+            >
+              <Link to="/" style={{ position: "absolute", left: 30 }}>
+                <ArrowCircleLeftIcon className="arrow-icon" />
+              </Link>
+              <p style={{ fontFamily: "Kanit", fontSize: "35px", margin: 0 }}>
+                Profile
+              </p>
+            </Grid>
+            <Grid item xs={12} md={12} marginTop={"-40px"}>
               {row1()}
             </Grid>
-            <Grid item xs={12} md={12}>
+            <Grid
+              item
+              xs={12}
+              md={12}
+              margin={"0px"}
+              padding={"0px"}
+              marginTop={"-40px"}
+              marginRight={2}
+            >
               {row2()}
             </Grid>
           </Grid>

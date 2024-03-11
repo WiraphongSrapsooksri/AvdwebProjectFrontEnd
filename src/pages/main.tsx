@@ -1,4 +1,4 @@
-import { Avatar } from "@mui/material";
+import { Avatar, Button } from "@mui/material";
 import ImageList from "@mui/material/ImageList";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Unstable_Grid2";
@@ -13,14 +13,17 @@ import { ListRankImage } from "../model/ListRankImage";
 import { Usermodel } from "../model/usermode";
 import { getRankImageall } from "../service/GetService";
 import "./RankCircle.css";
+
 // import Slider from "@mui/material/Slider/Slider";
 function MainPage() {
   const [rankImage, setRankImage] = useState<ListRankImage[]>([]);
   const [userdata, setuserdata] = useState<Usermodel>();
+
   useEffect(() => {
     const fetchData = async () => {
-      const data: ListRankImage = await getRankImageall();
-      setRankImage(data);
+      const data: ListRankImage[] = await getRankImageall();
+
+      setRankImage(data); // Update the type of setRankImage to accept a single ListRankImage object
     };
 
     const userdata = localStorage.getItem("user_WEBAVD");
@@ -166,6 +169,7 @@ function MainPage() {
             {rankImage.map((user, index) => {
               return (
                 <Box
+                  key={user.id}
                   sx={{
                     flex: index < 2 ? "2 0 40%" : "0 0 30%",
                     padding: 0.5,
@@ -237,61 +241,160 @@ function MainPage() {
           }}
         >
           <p className="textProfile">Profile</p>
-          <Link
-            to="/profile"
-            style={{
-              width: "100%",
-              height: "100%",
-              maxHeight: "100%",
-              minHeight: "100%",
-              margin: 0,
-              padding: 0,
-            }}
-          >
-            <Item
-              sx={{
-                backgroundColor: "#F1F1F1",
-                borderRadius: "30px",
-                display: "flex", // Enable flex layout
-                flexDirection: "column", // Stack children vertically
-                alignItems: "center", // Center-align children horizontally
-                justifyContent: "center", // Center-align children vertically
-                height: "80%", // Adjust the height as needed
-                padding: 1,
-                overflow: "hidden", // Prevent overflow of children outside the border-radius
-                textAlign: "center", // Center the text
-                transition: "transform 0.3s ease-in-out", // Add this line
-                "&:hover": {
-                  // Add this block
-                  transform: "scale(0.9)", // Change the scale to your preference
-                },
+          {userdata ? (
+            <Link
+              to="/profile"
+              style={{
+                width: "100%",
+                height: "100%",
+                maxHeight: "100%",
+                minHeight: "100%",
+                margin: 0,
+                padding: 0,
+                textDecoration: "none",
               }}
             >
-              <Avatar
-                alt="User Profile"
-                src={userdata?.image_profile}
+              <Item
                 sx={{
-                  width: (theme) => theme.spacing(20), // Use a fixed size for width
-                  height: (theme) => theme.spacing(20), // Use a fixed size for height to match the width
-                  borderRadius: "50%", // This will make it a circle
-                  maxWidth: "100%", // Ensure the avatar doesn't exceed the container's width
-                  maxHeight: "100%", // Ensure the avatar doesn't exceed the container's height
-                  objectFit: "cover", // Cover the area without distorting the aspect ratio
-                  marginY: 2, // Optional: Add some vertical margin if needed
-                }}
-              />
-
-              <p
-                style={{
-                  fontFamily: "Kanit",
-                  fontSize: "20px",
-                  margin: 0, // Remove margin to stick to the bottom
+                  backgroundColor: "#F1F1F1",
+                  borderRadius: "30px",
+                  display: "flex", // Enable flex layout
+                  flexDirection: "column", // Stack children vertically
+                  alignItems: "center", // Center-align children horizontally
+                  justifyContent: "center", // Center-align children vertically
+                  height: "80%", // Adjust the height as needed
+                  padding: 1,
+                  overflow: "hidden", // Prevent overflow of children outside the border-radius
+                  textAlign: "center", // Center the text
+                  transition: "transform 0.3s ease-in-out", // Add this line
+                  "&:hover": {
+                    // Add this block
+                    transform: "scale(0.9)", // Change the scale to your preference
+                  },
                 }}
               >
-                {userdata?.aka}
-              </p>
-            </Item>
-          </Link>
+                <Avatar
+                  alt="User Profile"
+                  src={userdata?.image_profile}
+                  sx={{
+                    width: (theme) => theme.spacing(20), // Use a fixed size for width
+                    height: (theme) => theme.spacing(20), // Use a fixed size for height to match the width
+                    borderRadius: "50%", // This will make it a circle
+                    maxWidth: "100%", // Ensure the avatar doesn't exceed the container's width
+                    maxHeight: "100%", // Ensure the avatar doesn't exceed the container's height
+                    objectFit: "cover", // Cover the area without distorting the aspect ratio
+                    marginY: 2, // Optional: Add some vertical margin if needed
+                  }}
+                />
+
+                <p
+                  style={{
+                    fontFamily: "Kanit",
+                    fontSize: "20px",
+                    margin: 0, // Remove margin to stick to the bottom
+                  }}
+                >
+                  {userdata?.aka}
+                </p>
+              </Item>
+            </Link>
+          ) : (
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                maxHeight: "100%",
+                minHeight: "100%",
+                margin: 0,
+                padding: 0,
+              }}
+            >
+              <Link
+                to="/login"
+                style={{
+                  width: "100%",
+                  height: "50%",
+                  maxHeight: "50%",
+                  minHeight: "50%",
+                  margin: 0,
+                  padding: 1,
+                  textDecoration: "none",
+                }}
+              >
+                <Item
+                  sx={{
+                    backgroundColor: "#F1F1F1",
+                    borderRadius: "30px",
+                    display: "flex", // Enable flex layout
+                    flexDirection: "column", // Stack children vertically
+                    alignItems: "center", // Center-align children horizontally
+                    justifyContent: "center", // Center-align children vertically
+                    height: "30%", // Adjust the height as needed
+                    padding: 1,
+                    overflow: "hidden", // Prevent overflow of children outside the border-radius
+                    textAlign: "center", // Center the text
+                    transition: "transform 0.3s ease-in-out", // Add this line
+                    "&:hover": {
+                      // Add this block
+                      transform: "scale(0.9)", // Change the scale to your preference
+                    },
+                  }}
+                >
+                  <p
+                    style={{
+                      fontFamily: "Kanit",
+                      fontSize: "20px",
+                      margin: 0,
+                    }}
+                  >
+                    Login
+                  </p>
+                </Item>
+                <Link
+                  to="/reg"
+                  style={{
+                    width: "100%",
+                    height: "50%",
+                    maxHeight: "50%",
+                    minHeight: "50%",
+                    margin: 0,
+                    padding: 1,
+                    textDecoration: "none",
+                  }}
+                >
+                  <Item
+                    sx={{
+                      backgroundColor: "#F1F1F1",
+                      borderRadius: "30px",
+                      display: "flex", // Enable flex layout
+                      flexDirection: "column", // Stack children vertically
+                      alignItems: "center", // Center-align children horizontally
+                      justifyContent: "center", // Center-align children vertically
+                      height: "30%", // Adjust the height as needed
+                      padding: 1,
+                      overflow: "hidden", // Prevent overflow of children outside the border-radius
+                      textAlign: "center", // Center the text
+                      transition: "transform 0.3s ease-in-out", // Add this line
+                      "&:hover": {
+                        // Add this block
+                        transform: "scale(0.9)", // Change the scale to your preference
+                      },
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontFamily: "Kanit",
+                        fontSize: "20px",
+                        margin: 0,
+                      }}
+                    >
+                      Sign up
+                    </p>
+                  </Item>
+                </Link>
+              </Link>
+            </Box>
+          )}
         </Item>
       </Box>
     );
@@ -309,6 +412,150 @@ function MainPage() {
           }}
         >
           <p className="textProfile">Vote</p>
+          {userdata ? (
+            <Link
+              to="/vote"
+              style={{
+                width: "100%",
+                height: "100%",
+                maxHeight: "100%",
+                minHeight: "100%",
+                margin: 0,
+                padding: 0,
+                textDecoration: "none",
+              }}
+            >
+              <Item
+                sx={{
+                  backgroundColor: "#F1F1F1",
+                  borderRadius: "30px",
+                  display: "flex", // Enable flex layout
+
+                  alignItems: "center", // Center-align children horizontally
+                  justifyContent: "center", // Center-align children vertically
+                  height: "80%", // Adjust the height as needed
+                  padding: 1,
+                  overflow: "hidden", // Prevent overflow of children outside the border-radius
+                  textAlign: "center", // Center the text
+                  transition: "transform 0.3s ease-in-out", // Add this line
+                  "&:hover": {
+                    // Add this block
+                    transform: "scale(0.9)", // Change the scale to your preference
+                  },
+                }}
+              >
+                <Avatar
+                  alt="User Profile"
+                  src={
+                    "https://i.etsystatic.com/41789378/r/il/b2a211/5242979876/il_570xN.5242979876_d6ul.jpg"
+                  }
+                  sx={{
+                    width: (theme) => theme.spacing(15), // Use a fixed size for width
+                    height: (theme) => theme.spacing(15), // Use a fixed size for height to match the width
+                    borderRadius: "50%", // This will make it a circle
+                    maxWidth: "100%", // Ensure the avatar doesn't exceed the container's width
+                    maxHeight: "100%", // Ensure the avatar doesn't exceed the container's height
+                    objectFit: "cover", // Cover the area without distorting the aspect ratio
+                    marginY: 2, // Optional: Add some vertical margin if needed
+                  }}
+                />
+                <p
+                  style={{
+                    padding: "20px",
+                    fontFamily: "Kanit",
+                    fontSize: "30px",
+                  }}
+                >
+                  <span className="red" style={{ color: "#21ecc2" }}>
+                    V
+                  </span>
+                  <span className="blue" style={{ color: "#21ecc2" }}>
+                    S
+                  </span>
+                </p>
+                <Avatar
+                  alt="User Profile"
+                  src={
+                    "https://i.etsystatic.com/41789378/r/il/2ab305/5291265949/il_570xN.5291265949_qa29.jpg"
+                  }
+                  sx={{
+                    width: (theme) => theme.spacing(15), // Use a fixed size for width
+                    height: (theme) => theme.spacing(15), // Use a fixed size for height to match the width
+                    borderRadius: "50%", // This will make it a circle
+                    maxWidth: "100%", // Ensure the avatar doesn't exceed the container's width
+                    maxHeight: "100%", // Ensure the avatar doesn't exceed the container's height
+                    objectFit: "cover", // Cover the area without distorting the aspect ratio
+                    marginY: 2, // Optional: Add some vertical margin if needed
+                  }}
+                />
+              </Item>
+            </Link>
+          ) : (
+            <Item
+              sx={{
+                backgroundColor: "#F1F1F1",
+                borderRadius: "30px",
+                display: "flex", // Enable flex layout
+
+                alignItems: "center", // Center-align children horizontally
+                justifyContent: "center", // Center-align children vertically
+                height: "80%", // Adjust the height as needed
+                padding: 1,
+                overflow: "hidden", // Prevent overflow of children outside the border-radius
+                textAlign: "center", // Center the text
+                transition: "transform 0.3s ease-in-out", // Add this line
+                "&:hover": {
+                  // Add this block
+                  transform: "scale(0.9)", // Change the scale to your preference
+                },
+              }}
+            >
+              <Avatar
+                alt="User Profile"
+                src={
+                  "https://i.etsystatic.com/41789378/r/il/b2a211/5242979876/il_570xN.5242979876_d6ul.jpg"
+                }
+                sx={{
+                  width: (theme) => theme.spacing(15), // Use a fixed size for width
+                  height: (theme) => theme.spacing(15), // Use a fixed size for height to match the width
+                  borderRadius: "50%", // This will make it a circle
+                  maxWidth: "100%", // Ensure the avatar doesn't exceed the container's width
+                  maxHeight: "100%", // Ensure the avatar doesn't exceed the container's height
+                  objectFit: "cover", // Cover the area without distorting the aspect ratio
+                  marginY: 2, // Optional: Add some vertical margin if needed
+                }}
+              />
+              <p
+                style={{
+                  padding: "20px",
+                  fontFamily: "Kanit",
+                  fontSize: "30px",
+                }}
+              >
+                <span className="red" style={{ color: "#21ecc2" }}>
+                  V
+                </span>
+                <span className="blue" style={{ color: "#21ecc2" }}>
+                  S
+                </span>
+              </p>
+              <Avatar
+                alt="User Profile"
+                src={
+                  "https://i.etsystatic.com/41789378/r/il/2ab305/5291265949/il_570xN.5291265949_qa29.jpg"
+                }
+                sx={{
+                  width: (theme) => theme.spacing(15), // Use a fixed size for width
+                  height: (theme) => theme.spacing(15), // Use a fixed size for height to match the width
+                  borderRadius: "50%", // This will make it a circle
+                  maxWidth: "100%", // Ensure the avatar doesn't exceed the container's width
+                  maxHeight: "100%", // Ensure the avatar doesn't exceed the container's height
+                  objectFit: "cover", // Cover the area without distorting the aspect ratio
+                  marginY: 2, // Optional: Add some vertical margin if needed
+                }}
+              />
+            </Item>
+          )}
         </Item>
       </Box>
     );
@@ -356,6 +603,43 @@ function MainPage() {
             borderRadius: "30px",
           }}
         >
+          {/* <button style={{   position: "fixed", // กำหนดให้อยู่กับที่บนหน้าจอ
+              top: 0, // ระยะห่างจากขอบบนสุด
+              right: 0, // ระยะห่างจากขอบขวาสุด
+              padding: 10,
+              backgroundColor: "red",
+              color: "white", // กำหนดสีข้อความเป็นสีขาว
+              borderRadius: "4px", // ปรับรูปร่างให้มนมุม
+              margin: "10px", // กำหนดระยะห่างจากขอบ
+              zIndex: 999, // ควบคุมลำดั}}>logout</button>
+        }}
+          >logout
+
+
+          </Button>
+           */}
+
+          {userdata ? (
+            <Button
+              style={{
+                position: "fixed",
+                top: 0, // ระยะห่างจากขอบบนสุด
+                right: 0, // ระยะห่างจากขอบขวาสุด
+                padding: 10,
+                backgroundColor: "red",
+                color: "white", // กำหนดสีข้อความเป็นสีขาว
+                borderRadius: "40px", // ปรับรูปร่างให้มนมุม
+                margin: "20px", // กำหนดระยะห่างจากขอบ
+                zIndex: 999, // ควบคุมลำดั}}>logout</button>
+              }}
+              onClick={logout}
+            >
+              Logout
+            </Button>
+          ) : (
+            <p></p>
+          )}
+
           <Grid container spacing={2}>
             <Grid xs={12} md={8}>
               {showrank()}
@@ -368,6 +652,11 @@ function MainPage() {
       </Container>
     </Container>
   );
+}
+
+function logout() {
+  localStorage.removeItem("user_WEBAVD");
+  window.location.reload();
 }
 
 export default MainPage;

@@ -3,6 +3,8 @@ import { LineChart } from "@mui/x-charts/LineChart";
 import { LineSeriesType } from "@mui/x-charts/models/seriesType";
 import React from "react";
 import { ChartModel } from "../model/ChartModel"; // Adjust the import path as necessary
+import "../style/MultiImageChart.css";
+
 interface MultiImageChartProps {
   chartData: ChartModel[];
 }
@@ -26,38 +28,51 @@ const MultiImageChart: React.FC<MultiImageChartProps> = ({ chartData }) => {
     return Object.entries(groupedData).map(([imageId, dataPoints]) => {
       // Sort the data points by date
       dataPoints.sort((a, b) => a.x.getTime() - b.x.getTime());
-      // Filter out to get the latest 7 data points
-      const lastSevenDataPoints = dataPoints.slice(-7);
+      // Assume we want to get data points between the 4th and 10th of the current month
+      const startOfPeriod = new Date();
+      startOfPeriod.setDate(4); // Set to the 4th
+      startOfPeriod.setHours(0, 0, 0, 0);
+      const endOfPeriod = new Date();
+      endOfPeriod.setDate(10); // Set to the 10th
+      endOfPeriod.setHours(23, 59, 59, 999);
+
+      const filteredDataPoints = dataPoints.filter((dp) => {
+        return dp.x >= startOfPeriod && dp.x <= endOfPeriod;
+      });
+
       return {
         label: `Image ${imageId}`,
-        data: lastSevenDataPoints,
+        data: filteredDataPoints,
         showMark: true,
       };
     });
   };
 
   // Prepare the series for the LineChart component
-  // const series = processDataToSeries(chartData);
   const series = processDataToSeries(chartData).map(
     (s) =>
       ({
         ...s,
-        // Assuming the LineChart expects an array of numbers for the data prop
         data: s.data.map((dp) => dp.y), // Convert to array of numbers
       } as LineSeriesType)
   );
-  // Assuming chartData is already sorted by date, take the latest 7 unique dates
-  const latestDates = chartData
-    .map((data) => new Date(data.date))
-    .filter(
-      (date, index, self) =>
-        self.findIndex((d) => d.getTime() === date.getTime()) === index
-    )
-    .slice(-7);
+
+  // Prepare the dates for the X axis of the LineChart component
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setDate(endDate.getDate() - 6); // 7 days before today, including today
+  startDate.setHours(0, 0, 0, 0); // Normalize the time to midnight
+  endDate.setHours(23, 59, 59, 999);
+
+  const latestDates = [];
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    latestDates.push(new Date(d));
+  }
 
   return (
     <LineChart
-      width={590}
+      className="my-custom-chart"
+      width={550}
       height={300}
       xAxis={[
         {

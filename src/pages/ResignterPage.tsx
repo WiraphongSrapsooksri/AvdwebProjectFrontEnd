@@ -22,6 +22,7 @@ import background from "../assets/backgroundREG.png";
 import { registerModel } from "../model/registerModel";
 import { signUp } from "../service/service";
 import { convertImagetoURL } from "../service/uploadImage";
+import MainPage from "./main";
 function ResignterPage() {
   const nameRef = useRef<HTMLInputElement>();
   const emailRef = useRef<HTMLInputElement>();
@@ -31,8 +32,12 @@ function ResignterPage() {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = React.useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState("null");
-  const [imageFile, setImageFile] = useState(null);
-  const [imageFileRef, setImageFileRef] = useState(null);
+  // const [imageFile, setImageFile] = useState(null);
+  // const [imageFileRef, setImageFileRef] = useState(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  // Assuming setImageFileRef is actually meant to be a state setter and not a ref:
+  const [imageFileRef, setImageFileRef] = useState<File | null>(null);
+
   const [error, seterror] = useState(false);
   const [texterror, settexterror] = useState("");
 
@@ -136,17 +141,14 @@ function ResignterPage() {
     );
   };
 
-  const handleImageUpload = (event) => {
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
-    const file = event.target.files[0];
-    // const reader = new FileReader();
-    setImageFileRef(event.target.files[0]);
-    setProfileImageUrl(URL.createObjectURL(file));
-    // reader.onload = () => {
-    //   setProfileImageUrl(reader.result as string);
-    // };
-    // reader.readAsDataURL(file);
-    setImageFile(file);
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      setImageFileRef(file);
+      setProfileImageUrl(URL.createObjectURL(file));
+      setImageFile(file);
+    }
   };
 
   const handleRegister = async () => {
@@ -195,64 +197,6 @@ function ResignterPage() {
       console.error("Error during registration:", error);
     }
   };
-
-  //   const handleRegister = async () => {
-  //     try {
-  //       setLoading(true);
-  //       const userData: registerModel = {
-  //         username: usernameRef.current?.value || "",
-  //         password: passwordRef.current?.value || "",
-  //         email: emailRef.current?.value || "",
-  //         name: nameRef.current?.value || "",
-  //         image_profile: "",
-  //       };
-
-  //       const formData = new FormData();
-  //       formData.append("key", "5785a4ad5fcd252bda7cf597309e8ec7");
-  //       formData.append("image", imageFileRef || "");
-
-  //       const response = await axios.post(
-  //         "https://api.imgbb.com/1/upload?expiration=600",
-  //         formData,
-  //         {
-  //           headers: {
-  //             "Content-Type": "multipart/form-data",
-  //           },
-  //         }
-  //       );
-
-  //       if (response.data.success) {
-  //         const profileImageUrl = response.data.data.url;
-  //         userData.image_profile = profileImageUrl as string;
-  //         console.log(userData);
-  //         const res = signUp(userData);
-  //         if ((await res).success == true) {
-  //           console.log("S" + (await res).message);
-  //         } else {
-  //           console.log("E" + (await res).message);
-  //           seterror(true);
-  //           settexterror((await res).message);
-  //         }
-  //         setLoading(false);
-  //         setOpen(true);
-  //       } else {
-  //         setLoading(false);
-  //         setOpen(true);
-  //         seterror(true);
-  //         settexterror("กรุณาเพิ่มรูปภาพ");
-  //         console.error(
-  //           "Image upload failed:",
-  //           response.data.status,
-  //           response.data.data.error
-  //         );
-  //       }
-  //     } catch (error) {
-  //       setLoading(false);
-  //       setOpen(true);
-  //       seterror(true);
-  //       console.error("Error during registration:", error);
-  //     }
-  //   };
 
   const componentupload = () => {
     return (
@@ -315,7 +259,11 @@ function ResignterPage() {
           <Grid item xs={12} md={6} sx={{ marginTop: "15vh" }}>
             <PaperI elevation={10}>
               {" "}
-              <Typography variant="h5" gutterBottom>
+              <Typography
+                variant="h5"
+                gutterBottom
+                sx={{ fontFamily: "Kanit" }}
+              >
                 Register
               </Typography>
               <Grid item container justifyContent="center">
@@ -341,7 +289,7 @@ function ResignterPage() {
 
         <Dialog
           open={open}
-          // TransitionComponent={Transition}
+          TransitionComponent={MainPage}
           keepMounted
           onClose={handleClose}
           aria-describedby="alert-dialog-slide-description"

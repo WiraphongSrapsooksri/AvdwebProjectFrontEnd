@@ -1,13 +1,18 @@
-.textprofilesetA{
-    font-size: 18px;
-    font-weight: 300;
-    color: #000000;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    font-family: 'Kanit', sans-serif;
+.textprofilesetA {
+  font-size: 18px;
+  font-weight: 300;
+  color: #000000;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-family: "Kanit", sans-serif;
 }
 
-strong{
-    font-weight: 500;
-    margin-right: 5px;
+strong {
+  font-weight: 500;
+  margin-right: 5px;
+}
+
+.arrow-icon {
+  width: 35px; /* ขนาดความกว้างที่ต้องการ */
+  height: 35px; /* ขนาดความสูงที่ต้องการ */
 }
