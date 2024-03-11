@@ -6,48 +6,89 @@ import background from "../assets/backgroundREG.png";
 import { ChartModel } from "../model/ChartModel";
 import { ListImageByID } from "../model/ListImageByID";
 import { Usermodel } from "../model/usermode";
-import { getListimageById } from "../service/GetService";
+import {
+  getListDaily_statsByIduser,
+  getListimageById,
+} from "../service/GetService";
 import "../style/profile.css";
+import MultiImageChart from "./MultiImageChart";
 
 export default function ProfilePage() {
   const [userdata, setuserdata] = useState<Usermodel>();
   const [listImageofuser, setlistImageofuser] = useState<ListImageByID[]>([]);
   const [chartData, setChartData] = useState<ChartModel[]>([]);
+  // useEffect(() => {
+  //   async function fetchUserDataAndImages() {
+  //     const userDataStr = localStorage.getItem("user_WEBAVD");
+  //     if (userDataStr) {
+  //       const user: Usermodel = JSON.parse(userDataStr);
+  //       setuserdata(user);
+  //       if (user?.id) {
+  //         const image: ListImageByID[] = await getListimageById(user.id);
+  //         setlistImageofuser(image);
+
+  //         // const daily_stats: ChartModel[] = await getdaily_statsByIdImage(19);
+
+  //         // setChartData(daily_stats);
+  //       }
+  //     }
+  //   }
+  //   listImageofuser.map((image) => {image.imgid = image.imgid + 1;})
+  //   fetchUserDataAndImages();
+  // }, []);
+
+  // useEffect(() => {
+  //   async function fetchUserDataAndImages() {
+  //     const userDataStr = localStorage.getItem("user_WEBAVD");
+
+  //     if (userDataStr) {
+  //       const user: Usermodel = JSON.parse(userDataStr);
+  //       setuserdata(user);
+  //       if (user?.id) {
+  //         const image: ListImageByID[] = await getListimageById(user.id);
+  //         setlistImageofuser(image);
+
+  //         // Fetch chart data for each image
+  //         const allChartData = await Promise.all(
+  //           image.map(async (img) => {
+  //             return await getdaily_statsByIdImage(img.imgid);
+  //           })
+  //         );
+
+  //         setChartData(allChartData);
+  //       }
+  //     }
+  //   }
+
+  //   fetchUserDataAndImages();
+  // }, []);
 
   useEffect(() => {
     async function fetchUserDataAndImages() {
-      const userDataStr = localStorage.getItem("user_WEBAVD");
-      if (userDataStr) {
+      try {
+        const userDataStr = localStorage.getItem("user_WEBAVD");
+        if (!userDataStr) return;
+
         const user: Usermodel = JSON.parse(userDataStr);
         setuserdata(user);
-        if (user?.id) {
-          const image: ListImageByID[] = await getListimageById(user.id);
-          setlistImageofuser(image);
 
-          const demoChartData: ChartModel[] = [
-            {
-              id: 25,
-              image_id: 19,
-              date: "2024-02-29T00:00:00.000Z",
-              votes_gained: 5,
-              rank: null,
-            },
-            {
-              id: 1,
-              image_id: 19,
-              date: "2024-03-01T00:00:00.000Z",
-              votes_gained: 1,
-              rank: null,
-            },
-          ];
-          //   const statsByIdImage = await getdaily_statsByIdImage(19);
-          setChartData(demoChartData);
-        }
+        if (!user?.id) return;
+
+        const imageList: ListImageByID[] = await getListimageById(user.id);
+        setlistImageofuser(imageList);
+
+        const liststats: ChartModel[] = await getListDaily_statsByIduser(
+          user.id
+        );
+        // console.log(liststats);
+        setChartData(liststats);
+      } catch (error) {
+        console.error("Error fetching user data and images:", error);
       }
     }
 
     fetchUserDataAndImages();
-  }, [chartData]);
+  }, []);
 
   const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -64,74 +105,83 @@ export default function ProfilePage() {
         sx={{
           display: "flex",
           justifyContent: "center",
-          //   alignItems: "center",
+          alignItems: "center",
           //   maxWidth: "80vw",
           width: "100%",
           margin: 0,
           padding: 2,
+
           //   backgroundColor: "rgba(255, 255, 255, 1)",
         }}
       >
-        <Avatar
-          alt="User Profile"
-          src={userdata?.image_profile}
-          sx={{
-            width: (theme) => theme.spacing(25), // Use a fixed size for width
-            height: (theme) => theme.spacing(25), // Use a fixed size for height to match the width
-            borderRadius: "50%", // This will make it a circle
-            maxWidth: "100%", // Ensure the avatar doesn't exceed the container's width
-            maxHeight: "100%", // Ensure the avatar doesn't exceed the container's height
-            objectFit: "cover", // Cover the area without distorting the aspect ratio
-            marginY: 2, // Optional: Add some vertical margin if needed
-            margin: 0,
-          }}
-        />
         <Box
           sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
             padding: 2,
             backgroundColor: "rgba(255, 255, 255, 1)",
-            margin: 2,
+            // margin: 2,
             borderRadius: "30px",
-            minWidth: "25vw",
-            minHeight: "25vh",
+            minWidth: "20vw",
+            minHeight: "30vh",
           }}
         >
-          <p className="textprofilesetA">
-            <strong>id:</strong>
-            {userdata?.id}
-          </p>
-          <p className="textprofilesetA">
-            <strong>Name:</strong> {userdata?.aka}
-          </p>
-          <p className="textprofilesetA">
-            <strong>Username:</strong> {userdata?.username}
-          </p>
-          <p className="textprofilesetA">
-            <strong>Email:</strong>
-            {userdata?.email}
-          </p>
-          <p className="textprofilesetA">
-            <strong>created_at:</strong>
-            {userdata && userdata.created_at
-              ? new Date(userdata.created_at).toLocaleDateString("th-TH")
-              : "N/A"}
-          </p>
+          <Avatar
+            alt="User Profile"
+            src={userdata?.image_profile}
+            sx={{
+              width: (theme) => theme.spacing(22), // Use a fixed size for width
+              height: (theme) => theme.spacing(22), // Use a fixed size for height to match the width
+              borderRadius: "50%", // This will make it a circle
+              maxWidth: "100%", // Ensure the avatar doesn't exceed the container's width
+              maxHeight: "100%", // Ensure the avatar doesn't exceed the container's height
+              objectFit: "cover", // Cover the area without distorting the aspect ratio
+              marginY: 2, // Optional: Add some vertical margin if needed
+              margin: 0,
+            }}
+          />
+          <Box sx={{ padding: 4 }}>
+            <p className="textprofilesetA">
+              <strong>id:</strong>
+              {userdata?.id}
+            </p>
+            <p className="textprofilesetA">
+              <strong>Name:</strong> {userdata?.aka}
+            </p>
+            <p className="textprofilesetA">
+              <strong>Username:</strong> {userdata?.username}
+            </p>
+            <p className="textprofilesetA">
+              <strong>Email:</strong>
+              {userdata?.email}
+            </p>
+            <p className="textprofilesetA">
+              <strong>created_at:</strong>
+              {userdata && userdata.created_at
+                ? new Date(userdata.created_at).toLocaleDateString("th-TH")
+                : "N/A"}
+            </p>
+            <p className="textprofilesetA">
+              <strong>Bio:</strong>
+              {userdata?.textBio}
+            </p>
+          </Box>
         </Box>
+
         <Box
           sx={{
             backgroundColor: "rgba(255, 255, 255, 1)",
             margin: 2,
             borderRadius: "30px",
             minWidth: "20vw",
-            // minHeight: "32vh",
+            // minHeight: "40vh",
           }}
         >
-          <p style={{ textAlign: "center", fontFamily: "Kanit" }}>BIO</p>
-          <p>{userdata?.textBio}</p>
-          {/* <LineChartComponent data={chartData} /> */}
-          <Box sx={{ marginTop: 4 }}>
-            {/* Pass chartData to the LineChartComponent */}
-            {/* <LineChartComponent key={chartData.length} data={chartData} /> */}
+          <Box sx={{ marginTop: 4, minHeight: "30vh" }}>
+            {chartData && chartData.length > 0 && (
+              <MultiImageChart chartData={chartData} />
+            )}
           </Box>
         </Box>
       </Box>
@@ -144,13 +194,13 @@ export default function ProfilePage() {
         sx={{
           display: "flex",
           justifyContent: "center",
-          //   alignItems: "center",
+          // alignItems: "center",
           padding: 1,
           backgroundColor: "rgba(255, 255, 255, 1)",
-          margin: 2,
+          // margin: 2,
           marginLeft: 4,
           borderRadius: "30px",
-          minHeight: "40vh",
+          minHeight: "35vh",
         }}
       >
         <Box>
@@ -173,7 +223,7 @@ export default function ProfilePage() {
               },
             }}
           >
-            {listImageofuser.slice(0, 4)?.map((image) => (
+            {listImageofuser.slice(0, 5)?.map((image) => (
               <Item
                 key={image.imgid}
                 sx={{

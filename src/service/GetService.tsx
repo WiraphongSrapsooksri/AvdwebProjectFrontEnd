@@ -29,29 +29,47 @@ export const getRankImageall = async (): Promise<ListRankImage> => {
 //   }
 // };
 
-
 export const getListimageById = async (id: number): Promise<ListImageByID> => {
-    try {
-        const response = await axios.get<ListImageByID>(
-        `${BASE_URL}/get/getListimagebyid/${id}`
-        );
-    
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching rank image:", error);
-        throw error;
-    }
-}
+  try {
+    const response = await axios.get<ListImageByID>(
+      `${BASE_URL}/get/getListimagebyid/${id}`
+    );
 
-export const getdaily_statsByIdImage = async (id: number): Promise<ChartModel> => {
-    try {
-        const response = await axios.get<ChartModel>(
-        `${BASE_URL}/get/getdaily_statsByIdImage/${id}`
-        );
-    
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching rank image:", error);
-        throw error;
-    }
-}
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching rank image:", error);
+    throw error;
+  }
+};
+
+export const getdaily_statsByIdImage = async (
+  id: number
+): Promise<ChartModel[]> => {
+  try {
+    const response = await axios.get<ChartModel[]>(
+      `${BASE_URL}/get/getdaily_statsByIdImage/${id}`
+    );
+    console.log(response.data);
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching daily stats by image ID:", error);
+    throw error;
+  }
+};
+
+export const getListDaily_statsByIduser = async (
+  id: number
+): Promise<ChartModel[]> => {
+  try {
+    const response = await axios.get<ChartModel[]>(
+      `${BASE_URL}/get/getListDaily_statsByIduser/${id}`
+    );
+    console.log(response.data);
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching daily stats by user ID:", error);
+    throw error;
+  }
+};
