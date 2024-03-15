@@ -7,8 +7,8 @@ const EXP = 15552000;
 const API_BASE_URL = "https://api.imgbb.com/1/upload";
 
 
-// const API_BASE_URLHost = "http://localhost:4000";
-const API_BASE_URLHost = "http://45.144.165.90:5200"
+const API_BASE_URLHost = "http://localhost:4000";
+// const API_BASE_URLHost = "http://45.144.165.90:5200"
 
 // Function to handle user signup
 export const convertImagetoURL = async (imagefile: File | null) => {

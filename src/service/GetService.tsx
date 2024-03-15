@@ -4,8 +4,8 @@ import { ImageVoteModel } from "../model/ImageVoteModel";
 import { ListImageByID } from "../model/ListImageByID";
 import { ListRankImage } from "../model/ListRankImage";
 
-// const BASE_URL = "http://localhost:4000";
-const BASE_URL =  "http://45.144.165.90:5200"
+const BASE_URL = "http://localhost:4000";
+// const BASE_URL =  "http://45.144.165.90:5200"
 
 
 
