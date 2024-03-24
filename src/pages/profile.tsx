@@ -21,6 +21,7 @@ import { ChartModel } from "../model/ChartModel";
 import { ListImageByID } from "../model/ListImageByID";
 import { Usermodel } from "../model/usermode";
 import {
+  getListDailyByday_statsByIduser,
   getListDaily_statsByIduser,
   getListimageById,
 } from "../service/GetService";
@@ -30,10 +31,14 @@ import {
   deleteimageByuser,
   updateImage,
 } from "../service/uploadImage";
-import MultiImageChart from "./MultiImageChart";
 
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { DailyDay } from "../model/DailyDay";
 import "../style/profile.css";
+import DifferentLength from "./DifferentLength";
 export default function ProfilePage() {
   const [userdata, setuserdata] = useState<Usermodel>();
   const [listImageofuser, setlistImageofuser] = useState<ListImageByID[]>([]);
@@ -49,51 +54,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [id, setId] = useState(0);
   const [user_id, setUser_id] = useState(0);
-  // useEffect(() => {
-  //   async function fetchUserDataAndImages() {
-  //     const userDataStr = localStorage.getItem("user_WEBAVD");
-  //     if (userDataStr) {
-  //       const user: Usermodel = JSON.parse(userDataStr);
-  //       setuserdata(user);
-  //       if (user?.id) {
-  //         const image: ListImageByID[] = await getListimageById(user.id);
-  //         setlistImageofuser(image);
-
-  //         // const daily_stats: ChartModel[] = await getdaily_statsByIdImage(19);
-
-  //         // setChartData(daily_stats);
-  //       }
-  //     }
-  //   }
-  //   listImageofuser.map((image) => {image.imgid = image.imgid + 1;})
-  //   fetchUserDataAndImages();
-  // }, []);
-
-  // useEffect(() => {
-  //   async function fetchUserDataAndImages() {
-  //     const userDataStr = localStorage.getItem("user_WEBAVD");
-
-  //     if (userDataStr) {
-  //       const user: Usermodel = JSON.parse(userDataStr);
-  //       setuserdata(user);
-  //       if (user?.id) {
-  //         const image: ListImageByID[] = await getListimageById(user.id);
-  //         setlistImageofuser(image);
-
-  //         // Fetch chart data for each image
-  //         const allChartData = await Promise.all(
-  //           image.map(async (img) => {
-  //             return await getdaily_statsByIdImage(img.imgid);
-  //           })
-  //         );
-
-  //         setChartData(allChartData);
-  //       }
-  //     }
-  //   }
-
-  //   fetchUserDataAndImages();
-  // }, []);
+  const [DailyData, setDailyData] = useState<DailyDay[]>([]);
 
   useEffect(() => {
     async function fetchUserDataAndImages() {
@@ -105,6 +66,11 @@ export default function ProfilePage() {
         setuserdata(user);
 
         if (!user?.id) return;
+
+        const DailyData: DailyDay[] = await getListDailyByday_statsByIduser(
+          user.id
+        );
+        setDailyData(DailyData);
 
         const imageList: ListImageByID[] = await getListimageById(user.id);
         setlistImageofuser(imageList);
@@ -121,6 +87,39 @@ export default function ProfilePage() {
 
     fetchUserDataAndImages();
   }, []);
+
+  const compare = (imageid: number) => {
+    const dd = DailyData;
+    const result = dd.find((data) => data.image_id === imageid);
+    if (!result) return <p style={{ color: "gray", margin: 0 }}>-</p>;
+
+    const df = result.prev_rank - result.rank;
+
+    if (df > 0) {
+      // อันดับดีขึ้น (ค่าน้อยลง) แสดงสีเขียว
+      return (
+        <Box sx={{ display: "flex" }}>
+          <p style={{ color: "green", margin: 0 }}>+{Math.abs(df)}</p>
+          <KeyboardArrowUpIcon sx={{ color: "green", marginBlock: -0.3 }} />
+        </Box>
+      );
+    } else if (df < 0) {
+      // อันดับแย่ลง (ค่ามากขึ้น) แสดงสีแดง
+      return (
+        <Box sx={{ display: "flex" }}>
+          <p style={{ color: "red", margin: 0 }}>{df}</p>
+          <KeyboardArrowDownIcon sx={{ color: "red", marginBlock: -0.3 }} />
+        </Box>
+      );
+    } else {
+      return (
+        <Box sx={{ display: "flex" }}>
+          <p style={{ color: "gray", margin: 0 }}>-</p>
+          <HorizontalRuleIcon sx={{ color: "gray", marginBlock: -0.3 }} />
+        </Box>
+      );
+    }
+  };
 
   // const Item = styled(Paper)(({ theme }) => ({
   //   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -212,9 +211,20 @@ export default function ProfilePage() {
             // minHeight: "40vh",
           }}
         >
-          <Box sx={{ marginTop: 4, minHeight: "30vh" }}>
-            {chartData && chartData.length > 0 && (
-              <MultiImageChart chartData={chartData} />
+          <Box sx={{ marginTop: 4, minHeight: "30vh", paddingRight: 3 }}>
+            {chartData && chartData.length > 0 ? (
+              <DifferentLength chartData={chartData} />
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "25vh",
+                }}
+              >
+                <p>No data</p>
+              </Box>
             )}
           </Box>
         </Box>
@@ -230,9 +240,11 @@ export default function ProfilePage() {
           justifyContent: "center",
           // alignItems: "center",
           padding: 1,
+
           backgroundColor: "rgba(255, 255, 255, 1)",
           // margin: 2,
           // marginLeft: 4,
+
           borderRadius: "30px",
           minHeight: "35vh",
         }}
@@ -244,6 +256,7 @@ export default function ProfilePage() {
               height: "100%",
               margin: 0,
               padding: 0,
+              overflowX: "hidden",
               "&::-webkit-scrollbar": { width: "0px" },
               "&::-webkit-scrollbar-track": { background: "#FCFCFC" },
               "&::-webkit-scrollbar-thumb": { background: "#BBBBBB" },
@@ -270,6 +283,45 @@ export default function ProfilePage() {
                   /* และที่นี่เมื่อเมาส์ออกไป */
                 }}
               >
+                <Box
+                  sx={{
+                    backgroundColor: "white",
+                    fontFamily: "Kanit",
+                    fontSize: "14px",
+                    borderRadius: "0px 0px 20px 0px",
+                    width: "40px",
+                    height: "40px",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                  }}
+                >
+                  <p style={{ margin: 0, paddingLeft: 2, fontSize: "18px" }}>
+                    R{image.rank}
+                  </p>
+                  <p style={{ marginTop: -5 }}>{compare(image.imgid)}</p>
+
+                  {/* {DailyData.map((data) => (
+                    <p
+                      key={data.image_id}
+                      style={{
+                        margin: 3,
+                        textAlign: "center",
+                        // ใช้สีเขียวหาก rank ปัจจุบันน้อยกว่า prev_rank (อันดับดีขึ้น)
+                        // ใช้สีแดงหาก rank ปัจจุบันมากกว่า prev_rank (อันดับแย่ลง)
+                        color:
+                          data.rank < data.prev_rank
+                            ? "green"
+                            : data.rank > data.prev_rank
+                            ? "red"
+                            : "black",
+                      }}
+                    >
+                      Rank: {data.rank} (Prev: {data.prev_rank})
+                    </p>
+                  ))} */}
+                </Box>
+
                 <img
                   src={image.image_url}
                   alt={image.imgid?.toString() ?? "default-alt"}
@@ -301,6 +353,41 @@ export default function ProfilePage() {
                   }}
                 >
                   {/* ตัวเลือกต่าง ๆ */}
+                  <Box
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.8)",
+                      fontFamily: "Kanit",
+                      fontSize: "14px",
+                      borderRadius: "10px",
+                      width: "125px",
+                      padding: 0.5,
+                      // height: "30px",
+                      position: "absolute",
+                      top: 50,
+                      // right: 0,
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: 0,
+                        textAlign: "center",
+                        fontStyle: "initial",
+                        fontSize: "18px",
+                      }}
+                    >
+                      ID:{image.imgid}
+                    </p>
+                    <p style={{ margin: 0, textAlign: "start" }}>
+                      rank:{image.rank}
+                    </p>
+                    <p style={{ margin: 0, textAlign: "start" }}>
+                      vote:{image.votes}
+                    </p>
+                    <p style={{ margin: 0, textAlign: "start" }}>
+                      Create:{" "}
+                      {new Date(image.created_at).toLocaleDateString("en-GB")}
+                    </p>
+                  </Box>
                   <Box sx={{ textAlign: "center" }}>
                     <button
                       style={{

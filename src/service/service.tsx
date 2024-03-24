@@ -2,8 +2,8 @@
 import axios from "axios";
 import { registerModel } from "../model/registerModel";
 
-const API_BASE_URL = "http://localhost:4000"; // Change this to your actual API base URL
-// const API_BASE_URL =  "http://45.144.165.90:5200"
+// const API_BASE_URL = "http://localhost:4000"; // Change this to your actual API base URL
+const API_BASE_URL =  "http://45.144.165.90:5200"
 
 // Function to handle user signup
 export const signUp = async (userData: registerModel) => {

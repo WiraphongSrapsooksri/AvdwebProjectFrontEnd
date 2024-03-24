@@ -21,7 +21,7 @@ export default function VotePage() {
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const response:ImageVoteModel[] = await getRandomImage(); // This should return an array of two images
+        const response: ImageVoteModel[] = await getRandomImage(); // This should return an array of two images
         if (response && response.length >= 2) {
           setImage1(response[0]); // Set the first image
           setImage2(response[1]); // Set the second image
@@ -555,6 +555,18 @@ export default function VotePage() {
                     selectedImageId ?? 0
                   )
                 }
+                style={{
+                  padding: "10px 20px",
+                  fontSize: "1.2rem",
+                  fontWeight: "bold",
+                  color: "white",
+                  backgroundColor: "#e91e63", // This is a pink shade, you can choose any color you like
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
+                  transition: "all 0.3s ease",
+                }}
               >
                 VOTE
               </Button>

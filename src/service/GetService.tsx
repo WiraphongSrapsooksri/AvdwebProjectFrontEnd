@@ -1,11 +1,12 @@
 import axios from "axios";
 import { ChartModel } from "../model/ChartModel";
+import { DailyDay } from "../model/DailyDay";
 import { ImageVoteModel } from "../model/ImageVoteModel";
 import { ListImageByID } from "../model/ListImageByID";
 import { ListRankImage } from "../model/ListRankImage";
 
-const BASE_URL = "http://localhost:4000";
-// const BASE_URL =  "http://45.144.165.90:5200"
+// const BASE_URL = "http://localhost:4000";
+const BASE_URL =  "http://45.144.165.90:5200"
 
 
 
@@ -89,3 +90,17 @@ export const getRandomImage = async (): Promise<ImageVoteModel[]> => {
     throw error;
   }
 };
+
+
+export const getListDailyByday_statsByIduser = async (id: number): Promise<DailyDay[]> => {
+  try {
+    const response = await axios.get<DailyDay[]>(
+      `${BASE_URL}/get/getListDailyByday_statsByIduser/${id}`
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching daily stats by user ID:", error);
+    throw error;
+  }
+}
