@@ -7,4 +7,5 @@ export interface ListRankImage {
   created_at: string;
   updated_at: string;
   username: string;
+  rank_change:number
 }

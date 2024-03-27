@@ -5,23 +5,23 @@ import Grid from "@mui/material/Unstable_Grid2";
 import { styled } from "@mui/material/styles";
 import { Box, Container } from "@mui/system";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import background from "../assets/backgroundREG.png";
-import { ListRankImage } from "../model/ListRankImage";
+import { RankModel } from "../model/rankModel";
 import { Usermodel } from "../model/usermode";
 import { getRankImageall } from "../service/GetService";
 import "./RankCircle.css";
 
 // import Slider from "@mui/material/Slider/Slider";
 function MainPage() {
-  const [rankImage, setRankImage] = useState<ListRankImage[]>([]);
+  const [rankImage, setRankImage] = useState<RankModel[]>([]);
   const [userdata, setuserdata] = useState<Usermodel>();
-
+  const history = useNavigate();
   useEffect(() => {
     const fetchData = async () => {
-      const data: ListRankImage[] = await getRankImageall();
+      const data: RankModel[] = await getRankImageall();
 
       setRankImage(data); // Update the type of setRankImage to accept a single ListRankImage object
     };
@@ -45,6 +45,7 @@ function MainPage() {
     // setuserdata(user);
     fetchData();
   }, []);
+  const location = useLocation();
 
   //   const Item = styled(Paper)(({ theme }) => ({
   //     backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -98,32 +99,87 @@ function MainPage() {
     point,
     color,
     colortext,
+    change_rank,
   }: {
     rank: number;
     username: string;
     point: number;
     color: string;
     colortext: string;
+    change_rank: number;
   }) => (
-    <div style={{ display: "flex", padding: 5 }}>
-      <div
-        className="rank-circle"
-        style={{ backgroundColor: color, color: colortext }}
-      >
-        {rank}
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          width: "100%",
-        }}
-      >
-        <div className="username">{username}</div>
-        <div className="point">
-          <div style={{ margin: 0 }}>
-            <p style={{ margin: 0, fontSize: "10px" }}>Point</p>
-            <p style={{ margin: 0 }}>{point}</p>
+    <div style={{ margin: 0 }}>
+      <div style={{ display: "flex", padding: 5 }}>
+        <div
+          className="rank-circle"
+          style={{ backgroundColor: color, color: colortext }}
+        >
+          <p>{rank}</p>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <div className="username" style={{ margin: 0 }}>
+            <div
+              style={{
+                margin: 0,
+                marginRight: 10,
+                marginLeft: -6,
+                marginTop: 15,
+              }}
+            >
+              {change_rank > 0 ? (
+                <p
+                  style={{
+                    color: "green",
+                    fontFamily: "Kanit",
+                    fontSize: "12px",
+                    margin: 0,
+                    backgroundColor: "white",
+                    borderRadius: "100%",
+                    width: "16px",
+                    height: "16px",
+                    textAlign: "center",
+                    strokeWidth: "1px",
+                    border: "1px solid green",
+                  }}
+                >
+                  +{change_rank}
+                </p>
+              ) : change_rank < 0 ? (
+                <p
+                  style={{
+                    color: "red",
+                    fontFamily: "Kanit",
+                    fontSize: "12px",
+                    margin: 0,
+                    backgroundColor: "white",
+                    borderRadius: "100%",
+                    width: "16px",
+                    height: "16px",
+                    textAlign: "center",
+                    strokeWidth: "1px",
+                    border: "1px solid red",
+                  }}
+                >
+                  {change_rank}
+                </p>
+              ) : (
+                ""
+              )}
+            </div>
+            {username}
+          </div>
+          <div className="point">
+            <div style={{ margin: 0 }}>
+              <p style={{ margin: 0, fontSize: "10px" }}>Point</p>
+              <p style={{ margin: 0 }}>{point}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -166,13 +222,19 @@ function MainPage() {
               },
             }}
           >
-            {rankImage.map((user, index) => {
+            {rankImage.slice(0, 10).map((user, index) => {
               return (
                 <Box
                   key={user.id}
                   sx={{
                     flex: index < 2 ? "2 0 40%" : "0 0 30%",
                     padding: 0.5,
+                    position: "relative",
+                    "&:hover .image-overlay": {
+                      // เพิ่ม class เพื่อการควบคุม hover
+                      opacity: 1,
+                      transition: "opacity 0.3s ease-in-out",
+                    },
                   }}
                 >
                   <Item
@@ -189,6 +251,7 @@ function MainPage() {
                       rank={user.rank}
                       username={user.username}
                       point={user.votes}
+                      change_rank={user.rank_yesterday - user.rank}
                       color={
                         index === 0
                           ? "#00A9FF"
@@ -216,6 +279,41 @@ function MainPage() {
                       width={"100%"}
                       style={{ borderRadius: "30px" }}
                     />
+                    <Box
+                      className="image-overlay"
+                      sx={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        opacity: 0,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        borderRadius: "30px",
+                        "&:hover": {
+                          cursor: "pointer",
+                        },
+                      }}
+                    >
+                      <button
+                        style={{
+                          margin: "10px",
+                          backgroundColor: "#FFBF00",
+                          color: "black",
+                          borderRadius: "10px",
+                          width: "120px",
+                          height: "30px",
+                          fontSize: "15px",
+                          fontFamily: "Kanit",
+                        }}
+                        onClick={() => handleClickOpen(user.user_id)}
+                      >
+                        View Profile
+                      </button>
+                    </Box>
                   </Item>
                 </Box>
               );
@@ -224,6 +322,11 @@ function MainPage() {
         </Box>
       </div>
     );
+  };
+
+  const handleClickOpen = (id: number) => {
+    localStorage.setItem("prevPath", location.pathname);
+    history(`/profileview/${id}`);
   };
 
   const profile = () => {

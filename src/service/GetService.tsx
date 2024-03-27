@@ -3,17 +3,17 @@ import { ChartModel } from "../model/ChartModel";
 import { DailyDay } from "../model/DailyDay";
 import { ImageVoteModel } from "../model/ImageVoteModel";
 import { ListImageByID } from "../model/ListImageByID";
-import { ListRankImage } from "../model/ListRankImage";
-
+import { RankModel } from "../model/rankModel";
+import { Usermodel } from "../model/usermode";
 // const BASE_URL = "http://localhost:4000";
 const BASE_URL =  "http://45.144.165.90:5200"
 
 
 
-export const getRankImageall = async (): Promise<ListRankImage[]> => {
+export const getRankImageall = async (): Promise<RankModel[]> => {
   try {
-    const response = await axios.get<ListRankImage[]>(
-      `${BASE_URL}/get/rangimage`
+    const response = await axios.get<RankModel[]>(
+      `${BASE_URL}/get/rangimage_GETDATE_dif1`
     );
 
     return response.data;
@@ -23,16 +23,6 @@ export const getRankImageall = async (): Promise<ListRankImage[]> => {
   }
 };
 
-// export const getusernamebyIdService = async (id: number): Promise<string> => {
-//   try {
-//     const response = await axios.get<string>(`${BASE_URL}/get/getusernamebyid/${id}`);
-
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error fetching username:", error);
-//     throw error;
-//   }
-// };
 
 export const getListimageById = async (id: number): Promise<ListImageByID[]> => {
   try {
@@ -104,3 +94,19 @@ export const getListDailyByday_statsByIduser = async (id: number): Promise<Daily
     throw error;
   }
 }
+
+
+
+export const getuserById = async (id: number): Promise<Usermodel[]> => {
+  try {
+    const response = await axios.get<Usermodel[]>(
+      `${BASE_URL}/get/getuserById/${id}`
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching daily stats by user ID:", error);
+    throw error;
+  }
+}
+

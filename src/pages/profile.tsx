@@ -1,5 +1,10 @@
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import CloseIcon from "@mui/icons-material/Close";
+import CropRotateIcon from "@mui/icons-material/CropRotate";
+import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import {
   Avatar,
   Button,
@@ -12,31 +17,30 @@ import {
   Grid,
   IconButton,
   ImageList,
+  TextField,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import background from "../assets/backgroundREG.png";
 import { ChartModel } from "../model/ChartModel";
+import { DailyDay } from "../model/DailyDay";
 import { ListImageByID } from "../model/ListImageByID";
 import { Usermodel } from "../model/usermode";
 import {
   getListDailyByday_statsByIduser,
   getListDaily_statsByIduser,
   getListimageById,
+  getuserById,
 } from "../service/GetService";
 import {
   addimage,
   convertImagetoURL,
   deleteimageByuser,
   updateImage,
+  updateImageprofile,
+  updatedataprofile,
 } from "../service/uploadImage";
-
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { DailyDay } from "../model/DailyDay";
 import "../style/profile.css";
 import DifferentLength from "./DifferentLength";
 export default function ProfilePage() {
@@ -48,6 +52,8 @@ export default function ProfilePage() {
     null
   );
   const [open, setOpen] = useState(false);
+  const [openfileeditprofile, setOpenfileeditprofile] = useState(false);
+  const [openEditprofile, setOpenEditprofile] = useState(false);
   const [openInsert, setOpenInsert] = useState(false);
   const [previewUrlInsert, setPreviewUrlInsert] = useState("");
   const [previewUrl, setPreviewUrl] = useState("");
@@ -55,6 +61,15 @@ export default function ProfilePage() {
   const [id, setId] = useState(0);
   const [user_id, setUser_id] = useState(0);
   const [DailyData, setDailyData] = useState<DailyDay[]>([]);
+  const [isHovered, setIsHovered] = useState(false);
+  const [refreshUserData, setRefreshUserData] = useState(false);
+  const [usernameEDIT, setUsernameEDIT] = useState(userdata?.username || "");
+  const [emailEDIT, setEmailEDIT] = useState(userdata?.email || "");
+  const [akaEDIT, setAkaEDIT] = useState(userdata?.aka || "");
+  // const user_id = userdata?.id;
+  const handleUsernameChange = (event: { target: { value: SetStateAction<string>; }; }) => setUsernameEDIT(event.target.value);
+  const handleEmailChange = (event: { target: { value: SetStateAction<string>; }; }) => setEmailEDIT(event.target.value);
+  const handleAkaChange = (event: { target: { value: SetStateAction<string>; }; }) => setAkaEDIT(event.target.value);
 
   useEffect(() => {
     async function fetchUserDataAndImages() {
@@ -62,8 +77,11 @@ export default function ProfilePage() {
         const userDataStr = localStorage.getItem("user_WEBAVD");
         if (!userDataStr) return;
 
-        const user: Usermodel = JSON.parse(userDataStr);
-        setuserdata(user);
+        const users: Usermodel = JSON.parse(userDataStr);
+        const getuser: Usermodel[] = await getuserById(users.id);
+        const user = getuser[0];
+        setuserdata(getuser[0]);
+        localStorage.setItem("user_WEBAVD", JSON.stringify(getuser[0]));
 
         if (!user?.id) return;
 
@@ -78,7 +96,6 @@ export default function ProfilePage() {
         const liststats: ChartModel[] = await getListDaily_statsByIduser(
           user.id
         );
-        // console.log(liststats);
         setChartData(liststats);
       } catch (error) {
         console.error("Error fetching user data and images:", error);
@@ -86,7 +103,11 @@ export default function ProfilePage() {
     }
 
     fetchUserDataAndImages();
-  }, []);
+    // Reset the trigger after the data is fetched
+    if (refreshUserData) {
+      setRefreshUserData(false);
+    }
+  }, [refreshUserData]);
 
   const compare = (imageid: number) => {
     const dd = DailyData;
@@ -114,7 +135,7 @@ export default function ProfilePage() {
     } else {
       return (
         <Box sx={{ display: "flex" }}>
-          <p style={{ color: "gray", margin: 0 }}>-</p>
+          <p style={{ color: "gray", margin: 0 }}></p>
           <HorizontalRuleIcon sx={{ color: "gray", marginBlock: -0.3 }} />
         </Box>
       );
@@ -129,6 +150,62 @@ export default function ProfilePage() {
   //   color: theme.palette.text.secondary,
   //   flexGrow: 1,
   // }));
+
+  const handleClickOpeneEditProfile = () => {
+    setOpenEditprofile(true);
+  };
+
+  const handleCloseEditProfile = () => {
+    setOpenEditprofile(false);
+  };
+
+  const handleSaveEditProfile = async () => {
+    // Initialize the edited values to null
+    let usernameToSave = null;
+    let emailToSave = null;
+    let akaToSave = null;
+
+    // Only set the edited values if they are different from the original userdata
+    if (usernameEDIT !== "" && usernameEDIT !== userdata?.username) {
+      usernameToSave = usernameEDIT;
+    }
+    if (emailEDIT !== "" && emailEDIT !== userdata?.email) {
+      emailToSave = emailEDIT;
+    }
+    if (akaEDIT !== "" && akaEDIT !== userdata?.aka) {
+      akaToSave = akaEDIT;
+    }
+
+    // Check if any of the values have been edited before making the API call
+    if (usernameToSave !== null || emailToSave !== null || akaToSave !== null) {
+      console.log("Updating profile with new data...");
+      const response = await updatedataprofile(
+        usernameToSave ?? userdata?.username as string,
+        userdata?.id as number,
+        emailToSave ?? userdata?.email as string,
+        akaToSave ?? userdata?.aka as string
+      );
+
+      // Handle the response
+      if (response.status) {
+        console.log(response.message);
+        // If you have a function to refresh the user data, call it here
+        setRefreshUserData(true);
+      } else {
+        console.error("Failed to update profile:", response.message);
+      }
+    } else {
+      console.log("No changes detected. No update necessary.");
+    }
+
+    // Close the edit profile dialog
+    setOpenEditprofile(false);
+  };
+
+  const editImageProfile = () => {
+    console.log("edit Image Profile");
+    setOpenfileeditprofile(true);
+  };
 
   const row1 = () => {
     return (
@@ -159,7 +236,53 @@ export default function ProfilePage() {
             minHeight: "25vh",
           }}
         >
-          <Avatar
+          <Box
+            sx={{
+              position: "relative",
+              "&:hover": {
+                "& .editIcon": {
+                  opacity: 1, // Show the edit icon on hover
+                },
+              },
+            }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <Avatar
+              alt="User Profile"
+              src={userdata?.image_profile}
+              sx={{
+                width: (theme) => theme.spacing(22), // Use a fixed size for width
+                height: (theme) => theme.spacing(22), // Use a fixed size for height to match the width
+                borderRadius: "50%", // This will make it a circle
+                maxWidth: "100%", // Ensure the avatar doesn't exceed the container's width
+                maxHeight: "100%", // Ensure the avatar doesn't exceed the container's height
+                objectFit: "cover", // Cover the area without distorting the aspect ratio
+                marginY: 2, // Optional: Add some vertical margin if needed
+                margin: 0,
+              }}
+            />
+            <IconButton
+              sx={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                opacity: 0, // Hide the button initially
+                transition: "opacity 0.3s",
+                zIndex: 2, // Ensure the button is above the Avatar
+                // More styles for the IconButton
+              }}
+              className="editIcon"
+              style={{ opacity: isHovered ? 1 : 0 }}
+              onClick={() => {
+                console.log("edit Image Profile");
+                editImageProfile();
+              }}
+            >
+              <CropRotateIcon color="error" />
+            </IconButton>
+          </Box>
+          {/* <Avatar
             alt="User Profile"
             src={userdata?.image_profile}
             sx={{
@@ -172,7 +295,7 @@ export default function ProfilePage() {
               marginY: 2, // Optional: Add some vertical margin if needed
               margin: 0,
             }}
-          />
+          /> */}
           <Box sx={{ padding: 4 }}>
             <p className="textprofilesetA">
               <strong>id:</strong>
@@ -194,10 +317,142 @@ export default function ProfilePage() {
                 ? new Date(userdata.created_at).toLocaleDateString("th-TH")
                 : "N/A"}
             </p>
-            <p className="textprofilesetA">
-              <strong>Bio:</strong>
-              {userdata?.textBio}
-            </p>
+            <Button variant="outlined" onClick={handleClickOpeneEditProfile}>
+              Edit Profile
+            </Button>
+            <Dialog
+              open={openEditprofile}
+              onClose={handleClickOpeneEditProfile}
+            >
+              <DialogTitle>Edit Profile</DialogTitle>
+              <DialogContent>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="aka"
+                  label="Name"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  defaultValue={userdata?.aka}
+                  // value={userdata?.aka}
+                  onChange={handleAkaChange}
+                />
+                <TextField
+                  margin="dense"
+                  id="username"
+                  label="Username"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  defaultValue={userdata?.username}
+                  onChange={handleUsernameChange}
+                />
+                <TextField
+                  margin="dense"
+                  id="email"
+                  label="Email"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  defaultValue={userdata?.email}
+                  onChange={handleEmailChange}
+                />
+
+                {/* สามารถเพิ่ม TextField อื่นๆ ตามข้อมูลที่ต้องการแก้ไขได้ */}
+              </DialogContent>
+              <DialogContent>
+                <Button onClick={handleCloseEditProfile}>Cancel</Button>
+                <Button onClick={handleSaveEditProfile}>Save</Button>
+              </DialogContent>
+            </Dialog>
+            <Dialog
+              open={openfileeditprofile}
+              onClose={handleClose}
+              fullWidth
+              maxWidth="sm"
+            >
+              <DialogTitle>
+                Update Image Profile
+                {handleClose ? (
+                  <IconButton
+                    aria-label="close"
+                    onClick={handleClose}
+                    sx={{
+                      position: "absolute",
+                      right: 8,
+                      top: 8,
+                      color: (theme) => theme.palette.grey[500],
+                    }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                ) : null}
+              </DialogTitle>
+              <DialogContent dividers>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 2,
+                    marginTop: 2,
+                  }}
+                >
+                  <input
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    id="raised-button-file"
+                    multiple
+                    type="file"
+                    onChange={handleFileChange}
+                  />
+                  <label htmlFor="raised-button-file">
+                    <Button
+                      variant="contained"
+                      component="span"
+                      disabled={loading}
+                    >
+                      Choose Image
+                    </Button>
+                  </label>
+                  {previewUrl && (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        marginTop: 2,
+                      }}
+                    >
+                      <img
+                        src={previewUrl}
+                        alt="Image preview"
+                        style={{
+                          maxWidth: "100%",
+                          maxHeight: "400px",
+                          borderRadius: "4px",
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Box>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose} disabled={loading}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleUploadeditprofile(userdata?.id ?? 0)}
+                  disabled={loading}
+                  startIcon={loading ? <CircularProgress size={24} /> : null}
+                >
+                  {loading ? "Uploading..." : "Upload"}
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Box>
         </Box>
 
@@ -300,26 +555,6 @@ export default function ProfilePage() {
                     R{image.rank}
                   </p>
                   <p style={{ marginTop: -5 }}>{compare(image.imgid)}</p>
-
-                  {/* {DailyData.map((data) => (
-                    <p
-                      key={data.image_id}
-                      style={{
-                        margin: 3,
-                        textAlign: "center",
-                        // ใช้สีเขียวหาก rank ปัจจุบันน้อยกว่า prev_rank (อันดับดีขึ้น)
-                        // ใช้สีแดงหาก rank ปัจจุบันมากกว่า prev_rank (อันดับแย่ลง)
-                        color:
-                          data.rank < data.prev_rank
-                            ? "green"
-                            : data.rank > data.prev_rank
-                            ? "red"
-                            : "black",
-                      }}
-                    >
-                      Rank: {data.rank} (Prev: {data.prev_rank})
-                    </p>
-                  ))} */}
                 </Box>
 
                 <img
@@ -706,6 +941,7 @@ export default function ProfilePage() {
     // Also reset selected file and preview URL
     setSelectedFile(null);
     setPreviewUrl("");
+    setOpenfileeditprofile(false);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -756,6 +992,62 @@ export default function ProfilePage() {
       handleClose(); // Close the dialog after upload
     }
   };
+
+  const handleUploadeditprofile = async (user_id: number) => {
+    if (selectedFile) {
+      setLoading(true); // Set loading to true before the upload starts
+      console.log("Uploading", selectedFile);
+
+      try {
+        const response = await convertImagetoURL(selectedFile);
+        console.log(response.url);
+        const jsons = {
+          image_url: response.url,
+          user_id: user_id,
+        };
+        console.log(jsons);
+
+        const update = await updateImageprofile(jsons.image_url, jsons.user_id);
+
+        if (update.status) {
+          console.log("S" + update.status);
+          const getuser: Usermodel[] = await getuserById(user_id);
+          setuserdata(getuser[0]);
+          window.location.reload();
+        }
+        console.log(response);
+      } catch (error) {
+        console.error("Upload failed:", error);
+        // You might want to handle the error here, perhaps setting an error state
+      }
+
+      setLoading(false); // Set loading to false after the upload completes
+      handleClose(); // Close the dialog after upload
+    }
+  };
+
+  // const handleUploadeditprofile = async (user_id: number) => {
+  //   if (selectedFile) {
+  //     setLoading(true);
+
+  //     try {
+  //       // ... your existing upload logic ...
+
+  //       const updatedUser: Usermodel = await getuserById(user_id);
+  //       // Make sure 'updatedUser' is the correct format before stringifying it.
+  //       localStorage.setItem("user_WEBAVD", JSON.stringify(updatedUser));
+
+  //       setuserdata(updatedUser); // Update state to reflect new user data
+  //       setRefreshUserData(true); // Trigger useEffect to re-fetch all related data
+
+  //     } catch (error) {
+  //       console.error("Upload failed:", error);
+  //     } finally {
+  //       setLoading(false);
+  //       handleClose();
+  //     }
+  //   }
+  // };
 
   const deleteImage = async (id: number, user_id: number) => {
     const isConfirmed = window.confirm(

@@ -5,6 +5,7 @@ import AdmainPage from "./pages/admin";
 import LoginPage from "./pages/login";
 import MainPage from "./pages/main";
 import ProfilePage from "./pages/profile";
+import ProfileViewPage from "./pages/profileview";
 import VotePage from "./pages/vote";
 function App() {
   const routers = createBrowserRouter([
@@ -14,6 +15,7 @@ function App() {
     { path: "/login", element: <LoginPage /> },
     { path: "/profile", element: <ProfilePage /> },
     { path: "/vote", element: <VotePage /> },
+    { path: "/profileview/:user_idIN", element: <ProfileViewPage /> },
   ]);
   return (
     <>

@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import background from "../assets/backgroundREG2.png";
 import logo from "../assets/logo.png";
+import { Usermodel } from "../model/usermode";
 import { login } from "../service/service";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // Improved styling for Paper and button
@@ -74,8 +75,18 @@ function LoginPage() {
       // console.log("user:", loginResult.token.user);
       const Token = loginResult.token;
       localStorage.setItem("Token_WEBAVD", JSON.stringify(Token));
-      localStorage.setItem("user_WEBAVD", JSON.stringify(loginResult.token.user));
-      history("/");
+      localStorage.setItem(
+        "user_WEBAVD",
+        JSON.stringify(loginResult.token.user)
+      );
+      const userdata: Usermodel = JSON.parse(
+        JSON.stringify(loginResult.token.user)
+      );
+      if (userdata.textBio == "admin") {
+        history("/admin");
+      } else {
+        history("/");
+      }
     } else {
       console.error("Error:", loginResult.message);
     }

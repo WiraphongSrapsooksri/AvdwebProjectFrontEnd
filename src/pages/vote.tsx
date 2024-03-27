@@ -7,6 +7,7 @@ import { ImageVoteModel } from "../model/ImageVoteModel";
 import { Usermodel } from "../model/usermode";
 import { getRandomImage } from "../service/GetService";
 import { updatevoteImage } from "../service/uploadImage";
+import MathJaxText from "./MathJaxText";
 interface ImagesComponentProps {
   image: ImageVoteModel;
   isSelected?: boolean; // Mark isSelected as optional
@@ -17,7 +18,15 @@ export default function VotePage() {
   const [image1, setImage1] = useState<ImageVoteModel | null>(null);
   const [image2, setImage2] = useState<ImageVoteModel | null>(null);
   const [selectedImageId, setSelectedImageId] = useState<number | null>(null);
+  const [Line1_1, setLine1_1] = useState<string>("");
+  const [Line1_2, setLine1_2] = useState<string>("");
+  const [Line1_3, setLine1_3] = useState<string>("");
+
+  const [Line2_1, setLine2_1] = useState<string>("");
+  const [Line2_2, setLine2_2] = useState<string>("");
+  const [Line2_3, setLine2_3] = useState<string>("");
   const [userdata, setuserdata] = useState<Usermodel>();
+  const [isvoted, setisvoted] = useState<boolean>(false);
   useEffect(() => {
     const fetchImages = async () => {
       try {
@@ -92,9 +101,37 @@ export default function VotePage() {
 
     const expScore1 = 1 / (1 + Math.pow(10, (rank2 - rank1) / 400));
     const expScore2 = 1 / (1 + Math.pow(10, (rank1 - rank2) / 400));
+    // setLine1_1(
+    //   // `Image 1: 1 / (1 + Math.pow(10, (${rank2} - ${rank1}) / 400)) = ${expScore1}`
+    //   `\frac{1}{1 + 10^{(\frac{${rank2}  - ${rank1})}{400})}} = 0.48992755307256153`
+    // );
+    setLine1_1(
+      `\\frac{1}{1 + 10^{(\\frac{${rank2} - ${rank1}}{400})}} = ${expScore1.toFixed(
+        5
+      )}`
+    );
+
+    setLine2_1(
+      `\\frac{1}{1 + 10^{(\\frac{${rank1} - ${rank2}}{400})}} = ${expScore2.toFixed(
+        5
+      )}`
+      // `Image 2: 1 / (1 + Math.pow(10, (${rank1} - ${rank2}) / 400)) = ${expScore2}`
+    );
 
     const updatedRank1 = Math.round(rank1 + K * (actualScore1 - expScore1));
     const updatedRank2 = Math.round(rank2 + K * (actualScore2 - expScore2));
+    setLine1_2(
+      // `Image 1: Math.round(${rank1} + ${K} * (${actualScore1} - ${expScore1})) = ${updatedRank1}`
+      `(${rank1} + ${K} \\times (${actualScore1} - ${expScore1.toFixed(
+        5
+      )})) = ${updatedRank1}`
+    );
+    setLine2_2(
+      // `Image 2: Math.round(${rank2} + ${K} * (${actualScore2} - ${expScore2})) = ${updatedRank2}`
+      `(${rank2} + ${K} \\times (${actualScore2} - ${expScore2.toFixed(
+        5
+      )})) = ${updatedRank2}`
+    );
 
     console.log("USERID: " + userdata?.id);
     console.log(
@@ -113,210 +150,58 @@ export default function VotePage() {
         "\tVote: " +
         image2?.votes
     );
+
+    setLine1_3(
+      "Image ID: " +
+        (image1?.id || "0") +
+        "\tRank: " +
+        (image1?.rank || "0") +
+        "\tVote: " +
+        (image1?.votes || "0") +
+        "\tupdate " +
+        (updatedRank1 || "")
+    );
+    setLine2_3(
+      "Image ID: " +
+        (image2?.id || "0") +
+        "\tRank: " +
+        (image2?.rank || "0") +
+        "\tVote: " +
+        (image2?.votes || "0") +
+        "\tupdate " +
+        (updatedRank2 || "")
+    );
+
     console.log("Selected Image: " + selectedImageId);
     console.log("updatedRank1", updatedRank1);
     console.log("updatedRank2", updatedRank2);
+    setisvoted(true);
 
-    const response1 = await updatevoteImage(
-      userdata?.id ?? 0,
-      temp, // ID of the selected image
-      temp === image1?.id ? updatedRank1 : updatedRank2 // Update with the correct new rank
-    );
+    if (isvoted) {
+      const response1 = await updatevoteImage(
+        userdata?.id ?? 0,
+        temp, // ID of the selected image
+        temp === image1?.id ? updatedRank1 : updatedRank2 // Update with the correct new rank
+      );
 
-    const nonSelectedImageId = temp === image1?.id ? image2?.id : image1?.id;
-    const nonSelectedImageNewRank =
-      temp === image1?.id ? updatedRank2 : updatedRank1;
+      const nonSelectedImageId = temp === image1?.id ? image2?.id : image1?.id;
+      const nonSelectedImageNewRank =
+        temp === image1?.id ? updatedRank2 : updatedRank1;
 
-    const response2 = await updatevoteImage(
-      userdata?.id ?? 0,
-      nonSelectedImageId ?? 0, // Fix: Add nullish coalescing operator to provide a default value of 0
-      nonSelectedImageNewRank
-    );
+      const response2 = await updatevoteImage(
+        userdata?.id ?? 0,
+        nonSelectedImageId ?? 0, // Fix: Add nullish coalescing operator to provide a default value of 0
+        nonSelectedImageNewRank
+      );
 
-    console.log("Updated rank1: ", updatedRank1);
-    console.log("Updated rank2: ", updatedRank2);
-
-    if (response1.status && response2.status) {
-      // Handle the success case
-      console.log("Image updated successfully");
-      window.location.reload();
+      if (response1.status && response2.status) {
+        // Handle the success case
+        console.log("Image updated successfully");
+        window.location.reload();
+        setisvoted(false);
+      }
     }
-
-    // return { updatedRank1, updatedRank2 };
   }
-
-  // const row1 = () => {
-  //   const handleImageClick1 = () => {
-  //     // Log the image details or handle them as needed
-  //     console.log("Clicked on Image 1", image1);
-  //   };
-  //   return (
-  //     <Box
-  //       sx={{
-  //         display: "flex",
-
-  //         justifyContent: "center",
-  //         alignItems: "center",
-  //         //   maxWidth: "80vw",
-  //         width: "100%",
-
-  //         margin: 0,
-  //         padding: 2,
-
-  //         //   backgroundColor: "rgba(255, 255, 255, 1)",
-  //       }}
-  //     >
-  //       <Box
-  //         sx={{
-  //           display: "flex",
-  //           justifyContent: "center",
-  //           alignItems: "center",
-  //           padding: 1,
-  //           margin: 0,
-  //           backgroundColor: "rgba(255, 255, 255, 1)",
-  //           height: "30vh",
-  //           borderRadius: "30px",
-  //           minWidth: "20vw",
-  //           minHeight: "60vh",
-  //           transition: "transform 0.3s ease-in-out", // Add this line
-  //           "&:hover": {
-  //             // Add this block
-  //             transform: "scale(0.9)", // Change the scale to your preference
-  //           },
-  //         }}
-  //         onClick={handleImageClick1}
-  //       >
-  //         <img
-  //           src={image1?.image_url}
-  //           style={{ height: "100%", borderRadius: "30px" }}
-  //           alt=""
-  //         />
-  //       </Box>
-  //     </Box>
-  //   );
-  // };
-
-  // const ImagesComponent = ({ image }) => {
-  //   // State to track if the image has been clicked (selected)
-  //   const [isSelected, setIsSelected] = useState(false);
-
-  //   const handleImageClick = () => {
-  //     if (!isSelected) {
-  //       // If the image is not already selected, select it
-  //       setIsSelected(true);
-  //       console.log("Selected Image", image);
-  //     } else {
-  //       // If the image is already selected, this click confirms the selection
-  //       console.log("Confirmed selection of Image", image);
-  //       // Here, add any logic to handle the confirmation, such as updating the database or navigating to another page
-  //     }
-  //   };
-
-  //   return (
-  //     <Box
-  //       sx={{
-  //         display: "flex",
-  //         justifyContent: "center",
-  //         alignItems: "center",
-  //         width: "100%",
-  //         margin: 0,
-  //         padding: 2,
-  //       }}
-  //     >
-  //       <Box
-  //         sx={{
-  //           position: "relative", // Needed to position the overlay correctly
-  //           display: "flex",
-  //           justifyContent: "center",
-  //           alignItems: "center",
-  //           padding: 1,
-  //           margin: 0,
-  //           backgroundColor: "rgba(255, 255, 255, 1)",
-  //           height: "30vh",
-  //           borderRadius: "30px",
-  //           minWidth: "20vw",
-  //           minHeight: "60vh",
-  //           transition: "transform 0.3s ease-in-out",
-  //           "&:hover": {
-  //             transform: "scale(0.9)",
-  //           },
-  //           ...(isSelected && {
-  //             // Apply a style when the image is selected
-  //             "&::after": {
-  //               content: '""',
-  //               position: "absolute",
-  //               top: 0,
-  //               left: 0,
-  //               width: "100%",
-  //               height: "100%",
-  //               backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent overlay
-  //               borderRadius: "30px",
-  //             },
-  //           }),
-  //         }}
-  //         onClick={handleImageClick}
-  //       >
-  //         <img
-  //           src={image?.image_url}
-  //           style={{
-  //             height: "100%",
-  //             borderRadius: "30px",
-  //             position: "relative",
-  //             zIndex: 1,
-  //           }}
-  //           alt=""
-  //         />
-  //       </Box>
-  //     </Box>
-  //   );
-  // };
-
-  // const row2 = () => {
-  //   const handleImageClick2 = () => {
-  //     // Log the image details or handle them as needed
-  //     console.log("Clicked on Image 2", image2);
-  //   };
-  //   return (
-  //     <Box
-  //       sx={{
-  //         display: "flex",
-  //         justifyContent: "center",
-  //         alignItems: "center",
-  //         //   maxWidth: "80vw",
-  //         width: "100%",
-  //         margin: 0,
-  //         padding: 2,
-  //       }}
-  //     >
-  //       <Box
-  //         sx={{
-  //           display: "flex",
-  //           justifyContent: "center",
-  //           alignItems: "center",
-  //           padding: 1,
-  //           margin: 0,
-  //           backgroundColor: "rgba(255, 255, 255, 1)",
-  //           height: "30vh",
-  //           borderRadius: "30px",
-  //           minWidth: "20vw",
-  //           minHeight: "60vh",
-  //           transition: "transform 0.3s ease-in-out", // Add this line
-  //           "&:hover": {
-  //             // Add this block
-  //             transform: "scale(0.9)", // Change the scale to your preference
-  //           },
-  //         }}
-  //         onClick={handleImageClick2}
-  //       >
-  //         <img
-  //           src={image2?.image_url}
-  //           style={{ height: "100%", borderRadius: "30px" }}
-  //           alt=""
-  //         />
-  //       </Box>
-  //     </Box>
-  //   );
-  // };
 
   const ImagesComponent: React.FC<ImagesComponentProps> = ({
     image,
@@ -325,6 +210,15 @@ export default function VotePage() {
   }) => {
     const handleImageClick = () => {
       if (onSelectImage && image?.id) {
+        // console.log("Image clicked");
+        // calculateElotemp(
+        //   image1?.votes ?? 0,
+        //   image1?.rank ?? 0,
+        //   image2?.votes ?? 0,
+        //   image2?.rank ?? 0,
+        //   selectedImageId ?? 0
+        // );
+        setisvoted(false);
         onSelectImage(image.id);
       }
     };
@@ -466,27 +360,6 @@ export default function VotePage() {
             borderRadius: "30px",
           }}
         >
-          {/* <Grid
-            container
-            spacing={2}
-            sx={{
-              margin: 0,
-              display: "flex",
-              alignItems: "start",
-              justifyContent: "center",
-            }}
-          >
-            <Grid item xs={12} md={5}>
-              <Link to="/">
-                <ArrowCircleLeftIcon className="arrow-icon" />
-              </Link>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <p style={{ fontFamily: "Kanit", fontSize: "35px", margin: 0 }}>
-                Vote
-              </p>
-            </Grid>
-          </Grid> */}
 
           <Grid
             container
@@ -560,7 +433,7 @@ export default function VotePage() {
                   fontSize: "1.2rem",
                   fontWeight: "bold",
                   color: "white",
-                  backgroundColor: "#e91e63", // This is a pink shade, you can choose any color you like
+                  backgroundColor: isvoted ? "#4CAF50" : "#e91e63",
                   border: "none",
                   borderRadius: "5px",
                   cursor: "pointer",
@@ -568,9 +441,32 @@ export default function VotePage() {
                   transition: "all 0.3s ease",
                 }}
               >
-                VOTE
+                {/* VOTE */}
+                {isvoted ? "COMFIRM VOTE" : "SELECT"}
               </Button>
             </Grid>
+            <Box
+              sx={{ display: "flex", fontFamily: "Kanit", fontSize: "16px" }}
+            >
+              <Box sx={{ padding: 5 }}>
+                <p style={{ fontSize: "20px" }}>{Line1_3}</p>
+                {/* <p>{Line1_1}</p> */}
+                <MathJaxText text={`\\(${Line1_1}\\)`} fontSize="30px" />
+                <br />
+                <MathJaxText text={`\\(${Line1_2}\\)`} fontSize="20px" />
+                {/* <p>{Line1_2}</p> */}
+              </Box>
+              <Box sx={{ padding: 5 }}>
+                <p style={{ fontSize: "20px" }}>{Line2_3}</p>
+                <MathJaxText text={`\\(${Line2_1}\\)`} fontSize="30px" />
+                <br />
+                <MathJaxText text={`\\(${Line2_2}\\)`} fontSize="20px" />
+              </Box>
+            </Box>
+
+            {/* <MathJaxText text="\( \frac{1}{1 + 10^{(\frac{20 - 13}{400})}} = 0.48992755307256153 \)" /> */}
+
+            {/* "1 / (1 + Math.pow(10, (20 - 13) / 400)) = 0.48992755307256153" */}
           </Grid>
         </Box>
       </Container>

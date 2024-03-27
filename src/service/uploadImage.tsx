@@ -6,7 +6,6 @@ const API_KEY = "5785a4ad5fcd252bda7cf597309e8ec7";
 const EXP = 15552000;
 const API_BASE_URL = "https://api.imgbb.com/1/upload";
 
-
 // const API_BASE_URLHost = "http://localhost:4000";
 const API_BASE_URLHost = "http://45.144.165.90:5200"
 
@@ -60,6 +59,34 @@ export const updateImage = async (
         user_id: user_id,
         image_id: image_id,
         image_url: imgage_url,
+      }
+    );
+    if (response.status === 200) {
+      return { status: true, message: "Image updated successfully" };
+    } else {
+      return { status: false, message: "Image update failed" };
+    }
+  } catch (error) {
+    console.error("Error updating image:", error);
+    return {
+      status: false,
+      message:
+        (error as Error).message ||
+        "An error occurred while updating the image",
+    };
+  }
+};
+
+export const updateImageprofile = async (
+  imgage_url: string,
+  user_id: number
+) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URLHost}/delete_update/updateimageprofile`,
+      {
+        image_url: imgage_url,
+        user_id: user_id,
       }
     );
     if (response.status === 200) {
@@ -146,6 +173,38 @@ export const updatevoteImage = async (
       return { status: true, message: "Image updated successfully" };
     } else {
       return { status: false, message: "Image update failed" };
+    }
+  } catch (error) {
+    console.error("Error updating image:", error);
+    return {
+      status: false,
+      message:
+        (error as Error).message ||
+        "An error occurred while updating the image",
+    };
+  }
+};
+
+export const updatedataprofile = async (
+  username: string,
+  user_id: number,
+  email: string,
+  aka: string
+) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URLHost}/delete_update/updatedataprofile`,
+      {
+        username: username,
+        aka: aka,
+        email: email,
+        user_id: user_id,
+      }
+    );
+    if (response.status === 200) {
+      return { status: true, message: "successfully" };
+    } else {
+      return { status: false, message: "failed" };
     }
   } catch (error) {
     console.error("Error updating image:", error);

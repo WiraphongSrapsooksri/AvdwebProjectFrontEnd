@@ -29,6 +29,7 @@ function ResignterPage() {
   const usernameRef = useRef<HTMLInputElement>();
   const passwordRef = useRef<HTMLInputElement>();
   //   const RepasswordRef = useRef<HTMLInputElement>();
+  
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = React.useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState("null");
@@ -40,7 +41,7 @@ function ResignterPage() {
 
   const [error, seterror] = useState(false);
   const [texterror, settexterror] = useState("");
-
+  
   const PaperI = styled(Paper)(({ theme }) => ({
     ...theme.typography.body2,
     textAlign: "center",
