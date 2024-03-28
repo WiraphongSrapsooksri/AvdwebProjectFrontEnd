@@ -664,7 +664,7 @@ export default function ProfilePage() {
                       maxWidth="sm"
                     >
                       <DialogTitle>
-                        Update Image
+                        <p style={{margin:0,fontFamily:'Kanit'}}>Update Image</p>
                         {handleClose ? (
                           <IconButton
                             aria-label="close"
@@ -784,8 +784,15 @@ export default function ProfilePage() {
                 onClose={handleCloseInsert}
                 fullWidth
                 maxWidth="sm"
+                PaperProps={{
+                  style: {
+                    backgroundColor: '#f5f5f5', // Soft background color
+                  boxShadow: 'none', 
+                  },
+                  
+                }}
               >
-                <DialogTitle>
+                <DialogTitle sx={{backgroundColor:'#E3E1E0'}}>
                   Add Image
                   {handleCloseInsert ? (
                     <IconButton
@@ -810,6 +817,7 @@ export default function ProfilePage() {
                       alignItems: "center",
                       gap: 2,
                       marginTop: 2,
+                      
                     }}
                   >
                     <input
@@ -825,6 +833,10 @@ export default function ProfilePage() {
                         variant="contained"
                         component="span"
                         disabled={loading}
+                        sx={{
+                          backgroundColor:'#2C2C2C',
+                          borderRadius:'30px'
+                        }}
                       >
                         Choose Image
                       </Button>
@@ -852,15 +864,21 @@ export default function ProfilePage() {
                   </Box>
                 </DialogContent>
                 <DialogActions>
-                  <Button onClick={handleCloseInsert} disabled={loading}>
+                  <Button onClick={handleCloseInsert} disabled={loading}
+                  sx={{backgroundColor:"#E8E4E4",borderRadius:'40px',color:'black',
+                height:'3vh'}}
+                  
+                  >
                     Cancel
                   </Button>
                   <Button
                     variant="contained"
-                    color="primary"
+                    // color="primary"
                     onClick={() => appimage()}
                     disabled={loading}
                     startIcon={loading ? <CircularProgress size={24} /> : null}
+                    sx={{backgroundColor:"#1E6FFC",borderRadius:'40px',color:'white',
+                    height:'3vh'}}
                   >
                     {loading ? "Uploading..." : "Upload"}
                   </Button>

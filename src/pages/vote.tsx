@@ -354,7 +354,7 @@ export default function VotePage() {
             justifyContent: "center",
             alignItems: "center",
             padding: 2,
-            // height: "100vw",
+            height: "93vh",
             backgroundColor: "rgba(255, 255, 255, 0.5)",
             marginTop: "10px",
             borderRadius: "30px",
@@ -446,9 +446,9 @@ export default function VotePage() {
               </Button>
             </Grid>
             <Box
-              sx={{ display: "flex", fontFamily: "Kanit", fontSize: "16px" }}
+              sx={{ display: "flex", fontFamily: "Kanit", fontSize: "16px" ,margin:0}}
             >
-              <Box sx={{ padding: 5 }}>
+              <Box sx={{ padding: 5 ,marginTop:-4}}>
                 <p style={{ fontSize: "20px" }}>{Line1_3}</p>
                 {/* <p>{Line1_1}</p> */}
                 <MathJaxText text={`\\(${Line1_1}\\)`} fontSize="30px" />
@@ -456,17 +456,13 @@ export default function VotePage() {
                 <MathJaxText text={`\\(${Line1_2}\\)`} fontSize="20px" />
                 {/* <p>{Line1_2}</p> */}
               </Box>
-              <Box sx={{ padding: 5 }}>
+              <Box sx={{ padding: 5,marginTop:-4}}>
                 <p style={{ fontSize: "20px" }}>{Line2_3}</p>
                 <MathJaxText text={`\\(${Line2_1}\\)`} fontSize="30px" />
                 <br />
                 <MathJaxText text={`\\(${Line2_2}\\)`} fontSize="20px" />
               </Box>
             </Box>
-
-            {/* <MathJaxText text="\( \frac{1}{1 + 10^{(\frac{20 - 13}{400})}} = 0.48992755307256153 \)" /> */}
-
-            {/* "1 / (1 + Math.pow(10, (20 - 13) / 400)) = 0.48992755307256153" */}
           </Grid>
         </Box>
       </Container>

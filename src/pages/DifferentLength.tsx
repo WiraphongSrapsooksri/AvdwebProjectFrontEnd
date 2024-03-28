@@ -199,7 +199,7 @@ export default function DifferentLength({ chartData }: DifferentLengthProps) {
   };
 
   return (
-    <LineChart width={500} height={290} data={seriesData}>
+    <LineChart width={500} height={250} data={seriesData}>
       <XAxis
         dataKey="x"
         type="category"
